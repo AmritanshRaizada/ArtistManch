@@ -17,7 +17,7 @@ export default function LandingPage() {
   return (
     <div className="w-full flex flex-col bg-surface min-h-screen">
       {/* Section 1: Cinematic Hero */}
-      <section className="relative w-full overflow-hidden bg-[#0e0e11] pt-28 pb-24 md:pt-36 md:pb-32 px-4 md:px-12 min-h-[calc(100svh-112px)] md:min-h-[calc(100svh-100px)] flex flex-col justify-center">
+      <section className="relative w-full overflow-hidden bg-[#0e0e11] px-4 py-8 sm:py-10 md:px-12 md:py-12 min-h-[calc(100svh-120px)] flex flex-col justify-center">
         {/* Full-bleed Background Video */}
         <video
           autoPlay
@@ -75,19 +75,41 @@ export default function LandingPage() {
             >
               stars
             </span>
-            <span className="font-bold text-[12px] uppercase tracking-[0.2em] text-primary">
+            <span className="font-bold text-[12px] uppercase tracking-[0.2em] text-secondary">
               Make Every Celebration Unforgettable
             </span>
           </div>
 
-          {/* Main Headline */}
-          <h1
-            className="font-playfair text-[40px] md:text-[60px] font-bold text-on-surface max-w-4xl tracking-tight leading-[1.12] mb-6 drop-shadow-lg"
-            style={{ letterSpacing: '-0.02em' }}
-          >
-            Find the Right Singer for{' '}
-            <span className="italic font-normal text-primary">Your Celebration</span>
-          </h1>
+          {/* Main Headline — Clean Festive Offer */}
+          <div className="max-w-4xl mx-auto mb-6 text-center">
+            <h1
+              className="font-playfair text-[36px] sm:text-[44px] md:text-[60px] font-bold text-on-surface tracking-tight leading-[1.15] mb-5"
+              style={{ letterSpacing: '-0.02em' }}
+            >
+              This Festive Season,
+              <br />
+              <span className="text-primary">Reserve Verified Artists</span>
+            </h1>
+
+            <p className="text-[16px] md:text-[19px] text-on-surface-variant mb-3">
+              Secure your favourite artist with a special festive advance of
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <span className="font-playfair text-3xl md:text-4xl font-bold text-primary">
+                10% Advance
+              </span>
+
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs md:text-sm">
+                <span className="text-on-surface-variant">Regular</span>
+                <span className="relative inline-block text-on-surface-variant/80">
+                  20%
+                  <span className="absolute left-0 right-0 top-1/2 h-px bg-on-surface-variant rotate-[-8deg]" />
+                </span>
+                <span className="text-primary font-semibold">Festive offer</span>
+              </span>
+            </div>
+          </div>
 
           {/* Supporting Copy */}
           <p className="text-[18px] md:text-[20px] text-on-surface-variant max-w-2xl mx-auto mb-12 leading-[28px] drop-shadow">
@@ -140,16 +162,45 @@ export default function LandingPage() {
                 100% Verified Talents
               </span>
             </div>
-            <div
-              className="flex items-center gap-2 px-3 py-1 rounded-full text-secondary backdrop-blur-md border border-secondary/20"
-              style={{ background: 'rgba(36,17,61,0.6)' }}
-            >
-              <span className="material-symbols-outlined text-[18px]">savings</span>
-              <span className="font-bold text-[11px] uppercase tracking-wider">Only 20% Advance Lock</span>
-            </div>
           </div>
         </div>
       </section>
+
+      {/* Full-Width Festive Offer Marquee */}
+      <div
+        className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y border-primary/25 py-3"
+        style={{ background: '#1b1028' }}
+      >
+        <div
+          className="festive-marquee-track flex w-max items-center"
+          aria-label="Use code FESTIVE10 to reserve verified artists with just 10% advance. Available only this festive season."
+        >
+          {[0, 1, 2, 3].map((item) => (
+            <div
+              key={item}
+              aria-hidden={item !== 0}
+              className="flex shrink-0 items-center gap-3 px-8 whitespace-nowrap"
+            >
+              <span className="text-primary">✦</span>
+              <span className="text-on-surface font-medium">
+                Use code
+              </span>
+              <span className="rounded-md bg-primary/15 px-2 py-1 font-bold text-primary">
+                FESTIVE10
+              </span>
+              <span className="text-on-surface-variant">
+                to reserve verified artists with just
+              </span>
+              <span className="font-bold text-primary">
+                10% advance
+              </span>
+              <span className="text-on-surface-variant">
+                — Available only this festive season.
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Section 2: How It Works */}
       <section className="w-full py-16 px-4 md:px-12 bg-surface">
@@ -160,9 +211,9 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { step: '01', icon: 'search', title: 'Browse & Select', desc: 'Explore our curated roster of verified artists across all genres and categories.' },
-              { step: '02', icon: 'assignment', title: 'Submit Enquiry', desc: 'Fill our 9-step booking wizard with your event details and lock your preferred artist.' },
-              { step: '03', icon: 'celebration', title: 'Celebrate!', desc: 'Pay just 20% advance (or 10% with FIRST10). Your artist performs, you celebrate.' },
+              { step: '01', icon: 'search', title: 'Browse & Select', desc: 'Explore our verified artists across all genres and categories.' },
+              { step: '02', icon: 'assignment', title: 'Submit Enquiry', desc: 'Fill our form with your event details and lock your preferred artist.' },
+              { step: '03', icon: 'celebration', title: 'Celebrate!', desc: 'Pay just 20% advance . Your artist performs, you celebrate.' },
             ].map(({ step, icon, title, desc }) => (
               <div key={step} className="bg-surface-container rounded-2xl p-6 border border-outline-variant/20 hover:border-primary/30 transition-all duration-300 group">
                 <div className="flex items-start gap-4">
@@ -181,7 +232,42 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 3: Featured Artists */}
+      {/* Section 3: Festive Advance Offer Banner */}
+      <section className="w-full py-16 px-4 md:px-12 bg-surface">
+        <div className="max-w-[1320px] mx-auto">
+          <div
+            className="rounded-2xl p-8 md:p-12 relative overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #24113d 0%, #1f1f22 50%, #1b1b1e 100%)' }}
+          >
+            <div className="absolute top-0 right-0 w-80 h-80 rounded-full blur-[100px] pointer-events-none" style={{ background: 'rgba(212,175,55,0.12)' }} />
+            <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: 'rgba(96,1,209,0.2)' }} />
+            <div className="relative z-10 text-center">
+              <span className="font-bold text-[11px] uppercase tracking-[0.2em] text-primary block mb-3">🎉 Festive Season Special</span>
+              <h2 className="font-playfair text-[28px] md:text-[40px] font-semibold text-on-surface mb-4" style={{ letterSpacing: '-0.015em' }}>
+                Book Now, Pay Only <span className="text-primary italic">20% Advance</span>
+              </h2>
+              <p className="text-[15px] text-on-surface-variant max-w-2xl mx-auto mb-2">
+                No more 50% advance payments! Lock your artist for just 20% of the budget as advance. First time on ArtistManch?
+              </p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8">
+                <span className="material-symbols-outlined text-primary text-[18px]">local_offer</span>
+                <span className="font-bold text-[14px] text-primary">Use coupon <span className="font-bold tracking-[0.1em]">FIRST10</span> for just 10% advance on your first booking!</span>
+              </div>
+              <div>
+                <button
+                  onClick={() => navigate('/booking')}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.4)] hover:scale-[1.03] transition-all"
+                >
+                  <span>Start your booking</span>
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 4: Featured Artists */}
       <section className="w-full py-16 px-4 md:px-12 bg-surface-container-lowest" id="featured-talent">
         <div className="max-w-[1320px] mx-auto">
           {/* Header */}
@@ -264,41 +350,6 @@ export default function LandingPage() {
               <span>Browse All Artists</span>
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 4: Festive Advance Offer Banner */}
-      <section className="w-full py-16 px-4 md:px-12 bg-surface">
-        <div className="max-w-[1320px] mx-auto">
-          <div
-            className="rounded-2xl p-8 md:p-12 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #24113d 0%, #1f1f22 50%, #1b1b1e 100%)' }}
-          >
-            <div className="absolute top-0 right-0 w-80 h-80 rounded-full blur-[100px] pointer-events-none" style={{ background: 'rgba(212,175,55,0.12)' }} />
-            <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: 'rgba(96,1,209,0.2)' }} />
-            <div className="relative z-10 text-center">
-              <span className="font-bold text-[11px] uppercase tracking-[0.2em] text-primary block mb-3">🎉 Festive Season Special</span>
-              <h2 className="font-playfair text-[28px] md:text-[40px] font-semibold text-on-surface mb-4" style={{ letterSpacing: '-0.015em' }}>
-                Book Now, Pay Only <span className="text-primary italic">20% Advance</span>
-              </h2>
-              <p className="text-[15px] text-on-surface-variant max-w-2xl mx-auto mb-2">
-                No more 50% advance payments! Lock your artist for just 20% of the budget as advance. First time on ArtistManch?
-              </p>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8">
-                <span className="material-symbols-outlined text-primary text-[18px]">local_offer</span>
-                <span className="font-bold text-[14px] text-primary">Use coupon <span className="font-bold tracking-[0.1em]">FIRST10</span> for just 10% advance on your first booking!</span>
-              </div>
-              <div>
-                <button
-                  onClick={() => navigate('/booking')}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.4)] hover:scale-[1.03] transition-all"
-                >
-                  <span>Start Booking Enquiry</span>
-                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </section>

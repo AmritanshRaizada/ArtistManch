@@ -176,4 +176,27 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
   }
+
+  /* Festive Marquee */
+  .festive-marquee-track {
+    animation: festive-marquee 32s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes festive-marquee {
+    from {
+      transform: translateX(-50%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .festive-marquee-track {
+      animation: none;
+      transform: none;
+    }
+  }
 }

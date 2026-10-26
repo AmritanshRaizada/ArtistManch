@@ -20,36 +20,50 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex flex-col">
-      {/* Festive Banner */}
-      <aside
-        className="w-full border-b border-outline-variant/30 py-1 px-4 md:px-12 text-on-surface"
-        id="festive-banner"
-        style={{ background: 'linear-gradient(to right, #24113d, #0e0e11, #131316)' }}
-      >
-        <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-2">
-          <div className="flex-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center">
-            <span className="font-bold text-[12px] text-primary tracking-wide">
-              ✨ NO NEED TO PAY 50% ADVANCE! Book your favourite artist with just 20% advance this festive season.
-            </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-high border border-outline/30 text-secondary font-bold text-[11px] uppercase tracking-wider">
-              First booking? Use FIRST10 for 10% advance only.
-            </span>
-          </div>
-        </div>
-      </aside>
-
+      <style>
+        {`
+          @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee {
+            animation: marquee 30s linear infinite;
+            display: flex;
+            width: max-content;
+          }
+        `}
+      </style>
       {/* Main Header */}
       <div className="w-full h-20 bg-surface-container-lowest/85 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_12px_32px_-4px_rgba(36,17,61,0.35)]">
-        <div className="max-w-[1320px] mx-auto h-full px-4 md:px-12 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2 focus:outline-none">
+        <div className="max-w-[1320px] mx-auto h-full px-4 md:px-12 flex items-center justify-between gap-4 relative">
+          {/* Left: Desktop Nav / Mobile Menu Toggle */}
+          <div className="flex-1 flex items-center gap-6 justify-start">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden w-9 h-9 flex items-center justify-center text-on-surface"
+              aria-label="Toggle navigation menu"
+            >
+              <span className="material-symbols-outlined text-[24px]">
+                {mobileOpen ? 'close' : 'menu'}
+              </span>
+            </button>
+
+            <nav className="hidden lg:flex items-center gap-6">
+              <Link to="/" className={`font-bold text-[14px] transition-colors ${isActive('/')}`}>Home</Link>
+              <Link to="/browse" className={`font-bold text-[14px] transition-colors ${isActive('/browse')}`}>Browse Artists</Link>
+              <Link to="/join" className={`font-bold text-[14px] transition-colors ${isActive('/join')}`}>Join as Artist</Link>
+            </nav>
+          </div>
+
+          {/* Center: Logo */}
+          <div className="flex items-center justify-center shrink-0">
+            <Link to="/" className="flex items-center gap-2 focus:outline-none group">
               <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center shadow-[0_0_16px_rgba(212,175,55,0.2)]">
                 <span className="material-symbols-outlined text-primary text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                   stars
                 </span>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                 <span className="font-playfair text-[22px] font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
                   ArtistManch
                 </span>
@@ -58,17 +72,10 @@ export default function Navbar() {
                 </span>
               </div>
             </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-6 ml-4">
-              <Link to="/" className={`font-bold text-[14px] transition-colors ${isActive('/')}`}>Home</Link>
-              <Link to="/browse" className={`font-bold text-[14px] transition-colors ${isActive('/browse')}`}>Browse Artists</Link>
-              <Link to="/join" className={`font-bold text-[14px] transition-colors ${isActive('/join')}`}>Join as Artist</Link>
-            </nav>
           </div>
 
-          {/* Auth Actions */}
-          <div className="flex items-center gap-3">
+          {/* Right: Auth Actions */}
+          <div className="flex-1 flex items-center justify-end gap-3">
             {user ? (
               <>
                 <Link
@@ -125,18 +132,38 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden w-9 h-9 flex items-center justify-center text-on-surface"
-            >
-              <span className="material-symbols-outlined text-[24px]">
-                {mobileOpen ? 'close' : 'menu'}
-              </span>
-            </button>
           </div>
         </div>
+
+        {/* Festive Banner */}
+        <aside
+          className="w-full border-t border-outline-variant/30 py-1.5 overflow-hidden text-on-surface whitespace-nowrap relative"
+          id="festive-banner"
+          style={{ background: 'linear-gradient(to right, #24113d, #0e0e11, #131316)' }}
+        >
+          <div className="animate-marquee hover:[animation-play-state:paused]">
+            <div className="flex items-center">
+              <span className="font-bold text-[18px] text-primary tracking-wide px-8">
+                ✨ NO NEED TO PAY 50% ADVANCE! Book your favourite artist with just 20% advance this festive season.
+              </span>
+              
+              <span className="font-bold text-[18px] text-primary tracking-wide px-8">
+                ✨ NO NEED TO PAY 50% ADVANCE! Book your favourite artist with just 20% advance this festive season.
+              </span>
+              
+            </div>
+            <div className="flex items-center">
+              <span className="font-bold text-[18px] text-primary tracking-wide px-8">
+                ✨ NO NEED TO PAY 50% ADVANCE! Book your favourite artist with just 20% advance this festive season.
+              </span>
+              
+              <span className="font-bold text-[18px] text-primary tracking-wide px-8">
+                ✨ NO NEED TO PAY 50% ADVANCE! Book your favourite artist with just 20% advance this festive season.
+              </span>
+              
+            </div>
+          </div>
+        </aside>
 
         {/* Mobile Menu */}
         {mobileOpen && (

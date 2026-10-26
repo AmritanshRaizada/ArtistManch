@@ -22,7 +22,6 @@ export default function Footer() {
         </div>
         <div className="pt-4 border-t border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
           <p className="text-[13px] text-on-surface-variant">© 2025 ArtistManch Entertainment Pvt. Ltd. All rights reserved.</p>
-          <p className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Curated Indian Artistry • Backstage VIP Protocol</p>
         </div>
       </div>
     </footer>
