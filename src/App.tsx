@@ -12,6 +12,7 @@ import BrowseArtistsPage from './pages/BrowseArtistsPage';
 import BookingWizardPage from './pages/BookingWizardPage';
 import JoinAsArtistPage from './pages/JoinAsArtistPage';
 import DashboardPage from './pages/DashboardPage';
+import EventQuoteForm from './pages/PostYourRequirement';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
                 <Route path="/browse" element={<BrowseArtistsPage />} />
                 <Route path="/booking" element={<BookingWizardPage />} />
                 <Route path="/join" element={<JoinAsArtistPage />} />
+                <Route path="/post-requirement" element={<EventQuoteForm />} />
                 <Route
                   path="/dashboard"
                   element={

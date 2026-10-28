@@ -241,7 +241,7 @@ export default function Navbar() {
           <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
 
             <Link
-              to="/booking"
+              to="/post-requirement"
               className="hidden md:inline-flex items-center justify-center gap-1.5 px-3 xl:px-4 py-2.5 bg-primary text-on-primary font-bold text-[12px] xl:text-[14px] rounded-xl shadow-gold hover:scale-[1.02] transition-all whitespace-nowrap"
             >
               <span>Post Your Requirement</span>

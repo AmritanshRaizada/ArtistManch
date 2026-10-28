@@ -9,10 +9,13 @@ import { db } from "../lib/firebase";
 
 type EventQuoteFormData = {
   category: string;
+  otherCategory: string;
   eventType: string;
+  otherEventType: string;
   name: string;
   eventDate: string;
   venueCity: string;
+  otherVenueCity: string;
   budget: string;
   attendees: string;
   email: string;
@@ -22,10 +25,13 @@ type EventQuoteFormData = {
 
 const initialForm: EventQuoteFormData = {
   category: "",
+  otherCategory: "",
   eventType: "",
+  otherEventType: "",
   name: "",
   eventDate: "",
   venueCity: "",
+  otherVenueCity: "",
   budget: "",
   attendees: "",
   email: "",
@@ -132,11 +138,23 @@ export default function EventQuoteForm() {
 
     try {
       await addDoc(collection(db, "PYR queries"), {
-        category: form.category.trim(),
-        eventType: form.eventType.trim(),
+        category:
+          form.category === "Other"
+            ? form.otherCategory.trim()
+            : form.category.trim(),
+        categorySelection: form.category,
+        eventType:
+          form.eventType === "Other"
+            ? form.otherEventType.trim()
+            : form.eventType.trim(),
+        eventTypeSelection: form.eventType,
         name: form.name.trim(),
         eventDate: form.eventDate,
-        venueCity: form.venueCity.trim(),
+        venueCity:
+          form.venueCity === "Other"
+            ? form.otherVenueCity.trim()
+            : form.venueCity.trim(),
+        venueCitySelection: form.venueCity,
         budget: form.budget.trim(),
         attendees: form.attendees.trim(),
         email: form.email.trim().toLowerCase(),
@@ -290,6 +308,24 @@ export default function EventQuoteForm() {
                         </option>
                       ))}
                     </select>
+                    {form.category === "Other" && (
+                      <div className="mt-3">
+                        <label htmlFor="otherCategory" className={labelClass}>
+                          Please specify category *
+                        </label>
+                        <input
+                          id="otherCategory"
+                          name="otherCategory"
+                          type="text"
+                          required
+                          maxLength={100}
+                          placeholder="Enter your event category"
+                          value={form.otherCategory}
+                          onChange={(e) => updateField("otherCategory", e.target.value)}
+                          className={fieldClass}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -322,6 +358,24 @@ export default function EventQuoteForm() {
                         </option>
                       ))}
                     </select>
+                    {form.eventType === "Other" && (
+                      <div className="mt-3">
+                        <label htmlFor="otherEventType" className={labelClass}>
+                          Please specify event type *
+                        </label>
+                        <input
+                          id="otherEventType"
+                          name="otherEventType"
+                          type="text"
+                          required
+                          maxLength={100}
+                          placeholder="Enter your event type"
+                          value={form.otherEventType}
+                          onChange={(e) => updateField("otherEventType", e.target.value)}
+                          className={fieldClass}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -375,6 +429,24 @@ export default function EventQuoteForm() {
                         </option>
                       ))}
                     </select>
+                    {form.venueCity === "Other" && (
+                      <div className="mt-3">
+                        <label htmlFor="otherVenueCity" className={labelClass}>
+                          Please specify city *
+                        </label>
+                        <input
+                          id="otherVenueCity"
+                          name="otherVenueCity"
+                          type="text"
+                          required
+                          maxLength={100}
+                          placeholder="Enter your city"
+                          value={form.otherVenueCity}
+                          onChange={(e) => updateField("otherVenueCity", e.target.value)}
+                          className={fieldClass}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div>
