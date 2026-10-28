@@ -197,7 +197,7 @@ export default function Navbar() {
                 <div className="absolute left-0 top-full w-64 pt-3 z-[90]">
                   <div className="rounded-2xl border border-white/10 bg-[#111019] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.65)]">
                     <Link
-                      to="/active-gigs"
+                      to="/join"
                       className="block rounded-lg px-4 py-3 text-sm text-on-surface hover:bg-white/5 hover:text-primary transition-colors"
                       onClick={closeMenus}
                     >

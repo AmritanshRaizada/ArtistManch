@@ -13,7 +13,10 @@ import BookingWizardPage from './pages/BookingWizardPage';
 import JoinAsArtistPage from './pages/JoinAsArtistPage';
 import DashboardPage from './pages/DashboardPage';
 import EventQuoteForm from './pages/PostYourRequirement';
-import ArtistFAQPage from './pages/ArtistFAQPage';
+import ArtistFAQPage from './pages/ArtistFAQPage.tsx';
+import ContactUsPage from './pages/ContactUsPage';
+
+
 
 export default function App() {
   return (
@@ -32,6 +35,7 @@ export default function App() {
                 <Route path="/join" element={<JoinAsArtistPage />} />
                 <Route path="/post-requirement" element={<EventQuoteForm />} />
                 <Route path="/artist-faq" element={<ArtistFAQPage />} />
+                <Route path="/contact" element={<ContactUsPage />} />
                 <Route
                   path="/dashboard"
                   element={
