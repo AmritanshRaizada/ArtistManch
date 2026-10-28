@@ -196,8 +196,8 @@ export default function EventQuoteForm() {
 
       <div className="mx-auto max-w-5xl">
         <div className="mx-auto mb-10 max-w-2xl text-center">
-          <span className="mb-4 inline-flex rounded-full border border-amber-300/20 bg-amber-300/[0.07] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">
-            Let's plan your event
+          <span className="mb-4 inline-flex ">
+            
           </span>
 
           <h2 className="font-playfair text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl">
@@ -207,11 +207,6 @@ export default function EventQuoteForm() {
             </span>
           </h2>
 
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/60 sm:text-base">
-            Tell us what you have in mind. Share your
-            requirements, and our team will help you find the
-            right artist for your occasion.
-          </p>
         </div>
 
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-purple-950/30 backdrop-blur-xl">
