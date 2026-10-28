@@ -8,16 +8,12 @@ import { useBooking } from '../contexts/BookingContext';
 import { ARTIST_TYPES, EVENT_TYPES, MAJOR_CITIES, BUDGET_BRACKETS } from '../data/artists';
 import type { BudgetBracket } from '../types';
 
-const STEPS = [
-  { num: 1, label: 'Occasion' },
-  { num: 2, label: 'Artist Type' },
-  { num: 3, label: 'Budget' },
-  { num: 4, label: 'Date & Time' },
-  { num: 5, label: 'Sound & Rider' },
-  { num: 6, label: 'Contact Info' },
-  { num: 7, label: 'Review' },
-  { num: 8, label: 'Payment' },
-  { num: 9, label: 'Confirmed' },
+const FORM_SECTIONS = [
+  'Occasion & Artist',
+  'Budget',
+  'Date & Time',
+  'Contact Details',
+  'Review & Submit',
 ];
 
 function generateSubmissionKey(): string {
@@ -31,389 +27,348 @@ function generateLeadId(): string {
   return result;
 }
 
+function LockedSection({ number, title, description }: { number: number; title: string; description: string }) {
+  return (
+    <section className="relative overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-low/60 p-5 md:p-6 opacity-75">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-outline-variant/40 bg-surface-container text-on-surface-variant">
+          <span className="material-symbols-outlined text-[19px]">lock</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-[15px] text-on-surface">{number}. {title}</p>
+          <p className="mt-0.5 text-[13px] text-on-surface-variant">{description}</p>
+        </div>
+        <span className="hidden rounded-full bg-surface-container px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant sm:inline-flex">Locked</span>
+      </div>
+    </section>
+  );
+}
+
+function SectionHeading({ number, title, description, complete = false }: { number: number; title: string; description: string; complete?: boolean }) {
+  return (
+    <div className="mb-5 flex items-start gap-3">
+      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-[13px] ${complete ? 'bg-primary text-on-primary' : 'border border-primary/30 bg-primary/10 text-primary'}`}>
+        {complete ? <span className="material-symbols-outlined text-[19px]">check</span> : number}
+      </div>
+      <div>
+        <h2 className="font-playfair text-[23px] md:text-[26px] font-semibold text-on-surface">{title}</h2>
+        <p className="mt-1 text-[14px] text-on-surface-variant">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function BookingWizardPage() {
   const { user } = useAuth();
   const { wizardData, updateWizard } = useBooking();
+  const navigate = useNavigate();
 
-  const [currentStep, setCurrentStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState(wizardData.leadId || '');
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [offerSecondsLeft, setOfferSecondsLeft] = useState<number | null>(null);
 
-  // Step 1: Event type & city
   const [eventType, setEventType] = useState(wizardData.eventType || '');
+  const [otherEventType, setOtherEventType] = useState('');
   const [city, setCity] = useState(wizardData.city || '');
-
-  // Step 2: Artist type
-  const [artistType, setArtistType] = useState(wizardData.artistType || '');
-
-  // Step 3: Budget
+  const [artistType, setArtistType] = useState(wizardData.artistType || wizardData.selectedArtist?.category || '');
+  const [otherArtistType, setOtherArtistType] = useState('');
   const [selectedBudget, setSelectedBudget] = useState<BudgetBracket | null>(wizardData.budget || null);
   const [couponCode, setCouponCode] = useState(wizardData.couponCode || '');
-
-  // Step 4: Date & Time
   const [eventDate, setEventDate] = useState(wizardData.eventDate || '');
   const [eventTime, setEventTime] = useState(wizardData.eventTime || '');
-
-  // Step 5: Sound & Rider
   const [soundRequirements, setSoundRequirements] = useState(wizardData.soundRequirements || '');
-
-  // Step 6: Customer details
   const [customerName, setCustomerName] = useState(wizardData.customerName || user?.displayName || '');
   const [customerEmail, setCustomerEmail] = useState(wizardData.customerEmail || user?.email || '');
   const [customerPhone, setCustomerPhone] = useState(wizardData.customerPhone || '');
   const [venueAddress, setVenueAddress] = useState(wizardData.venueAddress || '');
   const [termsAccepted, setTermsAccepted] = useState(false);
-
-  // Populate from selected artist if navigated from browse
-  useEffect(() => {
-    if (wizardData.selectedArtist && !artistType) {
-      setArtistType(wizardData.selectedArtist.category);
-    }
-    if (user?.displayName && !customerName) setCustomerName(user.displayName);
-    if (user?.email && !customerEmail) setCustomerEmail(user.email);
-  }, [wizardData.selectedArtist, user]);
-
-  // Persist submission key so retries don't create duplicates
+  const [activeSection, setActiveSection] = useState(0);
+  const [sectionErrors, setSectionErrors] = useState<Record<string, string>>({});
   const [submissionKey] = useState(wizardData.submissionKey || generateSubmissionKey());
 
-  const couponApplied = couponCode.trim().toUpperCase() === 'FIRST10';
+  useEffect(() => {
+    if (offerSecondsLeft === null || offerSecondsLeft <= 0) return;
+    const timer = window.setInterval(() => setOfferSecondsLeft((seconds) => {
+      if (seconds === null) return null;
+      if (seconds <= 1) { setCouponCode(''); return 0; }
+      return seconds - 1;
+    }), 1000);
+    return () => window.clearInterval(timer);
+  }, [offerSecondsLeft !== null && offerSecondsLeft > 0]);
+
+  useEffect(() => {
+    if (wizardData.selectedArtist && !artistType) setArtistType(wizardData.selectedArtist.category);
+    if (user?.displayName && !customerName) setCustomerName(user.displayName);
+    if (user?.email && !customerEmail) setCustomerEmail(user.email);
+  }, [wizardData.selectedArtist, user, artistType, customerName, customerEmail]);
+
+  // Keep the progress bar tied to the user's scroll position through the full form.
+  useEffect(() => {
+    const updateScrollProgress = () => {
+      const root = document.documentElement;
+      const scrollable = root.scrollHeight - window.innerHeight;
+      setScrollProgress(scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0);
+    };
+    updateScrollProgress();
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+    window.addEventListener('resize', updateScrollProgress);
+    return () => {
+      window.removeEventListener('scroll', updateScrollProgress);
+      window.removeEventListener('resize', updateScrollProgress);
+    };
+  }, []);
+
+  // Track the section closest to the top of the viewport for the progress label.
+  useEffect(() => {
+    const onScroll = () => {
+      let nearest = 0;
+      FORM_SECTIONS.forEach((_, index) => {
+        const element = document.getElementById(`booking-section-${index + 1}`);
+        if (element && element.getBoundingClientRect().top < window.innerHeight * 0.55) nearest = index;
+      });
+      setActiveSection(nearest);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const couponApplied = couponCode.trim().toUpperCase() === 'FIRST10' || couponCode.trim().toUpperCase() === 'FESTIVE10';
   const advanceAmount = selectedBudget
     ? couponApplied ? selectedBudget.advanceFirst10 : selectedBudget.advanceStandard
     : 0;
 
-  function progressPct() {
-    return ((currentStep - 1) / (STEPS.length - 1)) * 100;
+  const resolvedEventType = eventType === 'Other' ? otherEventType.trim() : eventType;
+  const resolvedArtistType = artistType === 'Other' ? otherArtistType.trim() : artistType;
+  const occasionComplete = Boolean(resolvedEventType && city.trim() && resolvedArtistType);
+  const budgetComplete = Boolean(selectedBudget);
+  const dateComplete = Boolean(eventDate);
+  const contactComplete = Boolean(
+    customerName.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim()) &&
+    customerPhone.replace(/\D/g, '').length === 10 && termsAccepted
+  );
+
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function validateStep(step: number): string {
-    if (step === 1) {
-      if (!eventType) return 'Please select an event type.';
-      if (!city.trim()) return 'Please enter your event city.';
-    }
-    if (step === 2) {
-      if (!artistType) return 'Please select an artist type.';
-    }
-    if (step === 3) {
-      if (!selectedBudget) return 'Please select a budget bracket.';
-    }
-    if (step === 4) {
-      if (!eventDate) return 'Please enter the event date.';
-    }
-    if (step === 6) {
-      if (!customerName.trim()) return 'Full name is required.';
-      if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return 'Please enter a valid email address.';
-      if (!customerPhone.trim() || customerPhone.replace(/\D/g, '').length < 10) return 'Please enter a valid 10-digit phone number.';
-      if (!termsAccepted) return 'Please accept the Terms & Conditions to proceed.';
-    }
+  function validateForm(): string {
+    if (!resolvedEventType) return 'Please select or enter your celebration occasion.';
+    if (!city.trim()) return 'Please enter your event city.';
+    if (!resolvedArtistType) return 'Please select or enter an artist type.';
+    if (!selectedBudget) return 'Please select a budget bracket.';
+    if (!eventDate) return 'Please enter the event date.';
+    if (!customerName.trim()) return 'Please enter your full name.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) return 'Please enter a valid email address.';
+    if (customerPhone.replace(/\D/g, '').length !== 10) return 'Please enter a valid 10-digit mobile number.';
+    if (!termsAccepted) return 'Please accept the Booking Terms & Conditions.';
     return '';
   }
 
-  async function handleNext() {
-    const error = validateStep(currentStep);
+  async function handleSubmit() {
+    const error = validateForm();
     if (error) {
       setSaveError(error);
+      if (!occasionComplete) scrollToSection('booking-section-1');
+      else if (!budgetComplete) scrollToSection('booking-section-2');
+      else if (!dateComplete) scrollToSection('booking-section-3');
+      else scrollToSection('booking-section-4');
       return;
     }
+
     setSaveError('');
-
-    // Sync to context
-    updateWizard({
-      eventType, city, artistType, budget: selectedBudget || undefined, couponCode,
-      eventDate, eventTime, soundRequirements,
-      customerName, customerEmail, customerPhone, venueAddress,
-      termsAccepted, submissionKey,
-    });
-
-    // === CRITICAL: Save to Firestore at Step 6 ===
-    if (currentStep === 6) {
-      if (!selectedBudget) { setSaveError('Budget information is missing. Please go back and select a budget.'); return; }
-      setSaving(true);
-      try {
-        // Allow both signed-in customers and guests to submit bookings.
-        let bookingUser = auth.currentUser;
-
-        if (!bookingUser) {
-          const credential = await signInAnonymously(auth);
-          bookingUser = credential.user;
-        }
-
-        // Use submissionKey as idempotency key (doc ID) to prevent duplicates
-        const leadId = wizardData.leadId || generateLeadId();
-        const leadsCol = collection(db, 'leads');
-        const docRef = doc(leadsCol, submissionKey);
-
-        await setDoc(docRef, {
-          leadId,
-          submissionKey,
-          uid: bookingUser.uid,
-          // Artist details
-          selectedArtistId: wizardData.selectedArtist?.id || null,
-          selectedArtistName: wizardData.selectedArtist?.professional_name || null,
-          // Event details
-          artistType,
-          eventType,
-          city,
-          // Budget
-          budgetLabel: selectedBudget.displayLabel,
-          budgetLower: selectedBudget.lower,
-          budgetUpper: selectedBudget.upper,
-          couponCode: couponCode.trim().toUpperCase() || null,
-          advanceAmount,
-          // Schedule
-          eventDate: eventDate || null,
-          eventTime: eventTime || null,
-          // Rider
-          soundRequirements: soundRequirements || null,
-          // Customer
-          customerName: customerName.trim(),
-          customerEmail: customerEmail.trim(),
-          customerPhone: customerPhone.trim(),
-          venueAddress: venueAddress.trim() || null,
-          // Metadata
-          status: 'enquiry_saved',
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        }, { merge: true }); // merge: true = idempotent — won't duplicate if retried
-
-        // Save leadId to context so review page can display it
-        updateWizard({ leadId, submissionKey });
-
-        setSaving(false);
-        setCurrentStep(7);
-      } catch (err) {
-        console.error('Firestore save error:', err);
-        setSaving(false);
-        setSaveError('Failed to save your enquiry. Please check your connection and try again. Your form data is preserved.');
-        return; // Do NOT navigate — keep user on step 6
+    setSaving(true);
+    try {
+      let bookingUser = auth.currentUser;
+      if (!bookingUser) {
+        const credential = await signInAnonymously(auth);
+        bookingUser = credential.user;
       }
-      return; // Navigation handled above
+
+      const finalLeadId = leadId || generateLeadId();
+      const normalizedCoupon = couponCode.trim().toUpperCase();
+      const payload = {
+        leadId: finalLeadId,
+        submissionKey,
+        uid: bookingUser.uid,
+        selectedArtistId: wizardData.selectedArtist?.id || null,
+        selectedArtistName: wizardData.selectedArtist?.professional_name || null,
+        artistType: resolvedArtistType,
+        eventType: resolvedEventType,
+        city: city.trim(),
+        budgetLabel: selectedBudget!.displayLabel,
+        budgetLower: selectedBudget!.lower,
+        budgetUpper: selectedBudget!.upper,
+        couponCode: normalizedCoupon || null,
+        advanceAmount,
+        eventDate: eventDate || null,
+        eventTime: eventTime || null,
+        soundRequirements: soundRequirements || null,
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+        customerPhone: customerPhone.replace(/\D/g, ''),
+        venueAddress: venueAddress.trim() || null,
+        status: 'enquiry_saved',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await setDoc(doc(collection(db, 'leads'), submissionKey), payload, { merge: true });
+      updateWizard({
+        eventType: resolvedEventType, city, artistType: resolvedArtistType, budget: selectedBudget || undefined, couponCode: normalizedCoupon,
+        eventDate, eventTime, soundRequirements, customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(), customerPhone: customerPhone.replace(/\D/g, ''),
+        venueAddress, termsAccepted, submissionKey, leadId: finalLeadId,
+      });
+      setLeadId(finalLeadId);
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Firestore save error:', err);
+      setSaveError('We could not save your enquiry. Please check your connection and try again. Your form details are still here.');
+    } finally {
+      setSaving(false);
     }
-
-    setCurrentStep((prev) => Math.min(prev + 1, 9));
   }
 
-  function handleBack() {
-    setSaveError('');
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  }
+  const sectionCard = 'scroll-mt-32 rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 md:p-7';
 
   return (
-    <div className="w-full pt-28 min-h-screen bg-surface">
-      <div className="relative w-full max-w-[1320px] mx-auto px-4 md:px-12 py-4 md:py-10">
-        {/* Atmospheric Glows */}
-        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[540px] h-[280px] rounded-full blur-[110px] pointer-events-none -z-10" style={{ background: 'rgba(96,1,209,0.2)' }} />
-
-        {/* Header */}
-        <section className="mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4 border-b border-outline-variant/20">
+    <div className="min-h-screen w-full bg-surface pt-28">
+      <div className="fixed left-0 right-0 top-0 z-[60] h-1 bg-surface-container-highest" aria-label="Form scroll progress">
+        <div className="h-full transition-[width] duration-150" style={{ width: `${scrollProgress}%`, background: 'linear-gradient(to right, #f2ca50, #ffe088, #d2bbff)' }} />
+      </div>
+      <div className="mx-auto w-full max-w-[1320px] px-4 py-5 md:px-12 md:py-10">
+        <section className="mb-7">
+          <div className="flex flex-col gap-4 border-b border-outline-variant/20 pb-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="flex items-center gap-2 text-primary font-bold text-[12px] uppercase tracking-wider mb-2">
-                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-                <span>Secure 9-Stage Concierge Booking</span>
+              <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-primary">
+                <span className="material-symbols-outlined text-[16px]">verified_user</span>
+                <span>ArtistManch Booking Enquiry</span>
                 <span className="text-on-surface-variant">•</span>
-                <span className="text-secondary font-semibold">Festive Season 2025</span>
+                <span className="text-secondary">Festive Season Offer</span>
               </div>
-              <h1 className="font-playfair text-[28px] md:text-[40px] font-semibold text-on-surface" style={{ letterSpacing: '-0.015em' }}>
-                Reserve Your Artist <span className="italic font-normal text-primary">with Just 20%</span>
+              <h1 className="font-playfair text-[30px] font-semibold text-on-surface md:text-[40px]">
+                Reserve Your  <span className="italic font-normal text-primary">Artist</span>
               </h1>
-              <p className="text-[15px] text-on-surface-variant max-w-2xl mt-1">
-                Zero full advance lock-ins. Verified stage availability and 100% deposit protection.
-              </p>
+              {/* <p className="mt-2 max-w-2xl text-[15px] text-on-surface-variant">
+                Complete each section as it unlocks below. Your details stay on this page—no Next or Back buttons between sections.
+              </p> */}
             </div>
-            <div className="flex flex-col items-start lg:items-end gap-2">
-              <div className="flex items-center gap-2 bg-surface-container-high px-4 py-1.5 rounded-full">
-                <span className="font-bold text-[11px] uppercase tracking-wider text-on-surface-variant">Active Stage:</span>
-                <span className="font-bold text-[12px] text-primary">Step {currentStep} of 9: {STEPS[currentStep - 1]?.label}</span>
-                <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse ml-1" />
+            {/* <div className="min-w-[220px] rounded-xl border border-outline-variant/20 bg-surface-container p-4">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Form progress</span>
+                <span className="text-[12px] font-bold text-primary">{Math.round(scrollProgress)}%</span>
               </div>
-              <div className="w-full lg:w-72 bg-surface-container-highest rounded-full h-2 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${progressPct()}%`, background: 'linear-gradient(to right, #f2ca50, #ffe088, #d2bbff)' }}
-                />
+              <div className="h-2 overflow-hidden rounded-full bg-surface-container-highest">
+                <div className="h-full rounded-full transition-all" style={{ width: `${scrollProgress}%`, background: 'linear-gradient(to right, #f2ca50, #d2bbff)' }} />
               </div>
-              <span className="font-bold text-[11px] text-on-surface-variant">Completion: {Math.round(progressPct())}%</span>
-            </div>
-          </div>
-
-          {/* Step Indicators */}
-          <div className="mt-4 overflow-x-auto pb-2">
-            <div className="min-w-[860px] flex items-center justify-between relative">
-              <div className="absolute top-4 left-4 right-4 h-0.5 bg-surface-variant" />
-              {STEPS.map((step) => {
-                const isDone = currentStep > step.num;
-                const isActive = currentStep === step.num;
-                return (
-                  <div key={step.num} className="relative z-10 flex flex-col items-center gap-1">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[11px] transition-all ${
-                      isDone ? 'bg-secondary-container text-on-secondary shadow-[0_0_12px_rgba(96,1,209,0.3)]'
-                        : isActive ? 'bg-primary text-on-primary ring-4 ring-primary/20 shadow-[0_0_24px_rgba(212,175,55,0.45)] scale-110'
-                          : 'bg-surface-container border border-outline-variant/60 text-on-surface-variant'
-                    }`}>
-                      {isDone ? <span className="material-symbols-outlined text-[16px]">check</span> : step.num}
-                    </div>
-                    <span className={`font-bold text-[11px] text-center ${isActive ? 'text-primary' : isDone ? 'text-on-surface-variant' : 'text-on-surface-variant/50'}`}>
-                      {step.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+              <p className="mt-2 text-[12px] text-on-surface-variant">Viewing: {FORM_SECTIONS[activeSection]}</p>
+            </div> */}
           </div>
         </section>
 
-        {/* Save Error Banner */}
         {saveError && (
-          <div className="mb-4 p-4 rounded-xl bg-error-container/30 border border-error/30 flex items-start gap-3">
-            <span className="material-symbols-outlined text-error text-[20px] shrink-0 mt-0.5">error</span>
-            <div className="flex-1">
-              <p className="font-bold text-[14px] text-error mb-1">Action Required</p>
-              <p className="text-[13px] text-error">{saveError}</p>
-            </div>
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-error/30 bg-error-container/30 p-4" role="alert">
+            <span className="material-symbols-outlined mt-0.5 text-[20px] text-error">error</span>
+            <div><p className="text-[14px] font-bold text-error">Action required</p><p className="mt-1 text-[13px] text-error">{saveError}</p></div>
           </div>
         )}
 
-        {/* Step Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            {currentStep === 1 && <Step1 eventType={eventType} setEventType={setEventType} city={city} setCity={setCity} />}
-            {currentStep === 2 && <Step2 artistType={artistType} setArtistType={setArtistType} selectedArtist={wizardData.selectedArtist} />}
-            {currentStep === 3 && <Step3 selectedBudget={selectedBudget} setSelectedBudget={setSelectedBudget} />}
-            {currentStep === 4 && <Step4 eventDate={eventDate} setEventDate={setEventDate} eventTime={eventTime} setEventTime={setEventTime} />}
-            {currentStep === 5 && <Step5 soundRequirements={soundRequirements} setSoundRequirements={setSoundRequirements} />}
-            {currentStep === 6 && (
-              <Step6
-                customerName={customerName} setCustomerName={setCustomerName}
-                customerEmail={customerEmail} setCustomerEmail={setCustomerEmail}
-                customerPhone={customerPhone} setCustomerPhone={setCustomerPhone}
-                venueAddress={venueAddress} setVenueAddress={setVenueAddress}
-                termsAccepted={termsAccepted} setTermsAccepted={setTermsAccepted}
-              />
-            )}
-            {currentStep === 7 && (
-              <Step7
-                wizardData={wizardData}
-                advanceAmount={advanceAmount}
-                onEdit={(step: number) => setCurrentStep(step)}
-              />
-            )}
-            {currentStep === 8 && <Step8 wizardData={wizardData} advanceAmount={advanceAmount} />}
-            {currentStep === 9 && <Step9 wizardData={wizardData} />}
-          </div>
-
-          {/* Right Sidebar: Advance Calculator */}
-          <div className="lg:col-span-4">
-            <div className="bg-surface-container p-6 rounded-xl flex flex-col gap-4 shadow-lg sticky top-32">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[11px] uppercase tracking-wider text-secondary">Smart Transparent Quote</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  <span className="material-symbols-outlined text-[13px]">shield</span> SECURE
-                </span>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-on-surface-variant text-[13px]">
-                  <span>Selected Budget:</span>
-                  <span className="font-semibold text-[18px] text-on-surface font-bold">{selectedBudget?.displayLabel || 'Not selected'}</span>
-                </div>
-                <div className="flex items-center justify-between text-on-surface-variant text-[13px]">
-                  <span>Regular Advance (20%):</span>
-                  <span className="text-on-surface font-bold">₹{selectedBudget ? selectedBudget.advanceStandard.toLocaleString('en-IN') : '—'}</span>
-                </div>
-                {/* Coupon Box */}
-                <div className="p-3 rounded-lg bg-surface-container-lowest">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-primary text-[18px]">local_offer</span>
-                      <span className="font-bold text-[12px] text-primary">FIRST10 Code</span>
-                    </div>
-                    <span className="font-bold text-[11px] text-secondary uppercase">10% Advance</span>
-                  </div>
-                  <div className="flex items-baseline justify-between mt-1 pt-1">
-                    <span className="text-[13px] text-on-surface-variant">Pay now to reserve:</span>
-                    <span className="font-playfair text-[22px] font-semibold text-primary">₹{selectedBudget ? selectedBudget.advanceFirst10.toLocaleString('en-IN') : '—'}</span>
-                  </div>
-                </div>
-
-                {/* Applied Coupon */}
-                {currentStep >= 3 && (
-                  <div className="flex flex-col gap-1">
-                    <label className="font-bold text-[12px] text-on-surface-variant uppercase tracking-wider">Apply Coupon</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        placeholder="FIRST10"
-                        className="flex-1 bg-surface-container-low text-on-surface px-3 py-2 rounded-lg text-[14px] focus:outline-none focus:border-primary border border-transparent"
-                      />
-                      {couponApplied && (
-                        <span className="flex items-center px-2 rounded-lg bg-primary/10 border border-primary/30 text-primary">
-                          <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                        </span>
-                      )}
-                    </div>
-                    {couponApplied && <p className="text-[11px] text-primary font-bold">✓ FIRST10 applied — pay only 10%!</p>}
-                  </div>
-                )}
-
-                {/* Your advance */}
-                {selectedBudget && (
-                  <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-                    <p className="font-bold text-[12px] text-on-surface uppercase tracking-wider mb-1">Your Advance to Pay</p>
-                    <p className="font-playfair text-[28px] font-bold text-primary">₹{advanceAmount.toLocaleString('en-IN')}</p>
-                    {couponApplied && <p className="text-[11px] text-primary">With FIRST10 (10% of ₹{selectedBudget.lower.toLocaleString('en-IN')})</p>}
-                    {!couponApplied && <p className="text-[11px] text-on-surface-variant">20% of ₹{selectedBudget.lower.toLocaleString('en-IN')}</p>}
-                  </div>
-                )}
-              </div>
-
-              {/* Guarantees */}
-              <div className="space-y-1.5 pt-2">
-                {[
-                  'Balance payable directly at event venue',
-                  '100% full refund if artist unavailable',
-                  'Verified artists only — no surprises',
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-on-surface-variant text-[13px]">
-                    <span className="material-symbols-outlined text-primary text-[16px]">check_circle</span>
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
+        {submitted ? (
+          <div className="mx-auto flex max-w-2xl flex-col items-center gap-5 rounded-2xl border border-primary/30 bg-surface-container-low p-7 py-10 text-center md:p-12">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+              <span className="material-symbols-outlined text-[42px] text-primary">celebration</span>
+            </div>
+            <div>
+              <h2 className="mb-2 font-playfair text-[34px] font-bold text-on-surface">Enquiry <span className="text-primary">Submitted!</span></h2>
+              <p className="text-[15px] leading-6 text-on-surface-variant">Your enquiry has been saved successfully. The ArtistManch team will contact you to coordinate artist availability and advance payment.</p>
+            </div>
+            <div className="rounded-xl border border-primary/20 bg-surface-container px-6 py-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Your Lead ID</p>
+              <p className="mt-1 text-[20px] font-bold tracking-wider text-primary">{leadId}</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button onClick={() => navigate('/dashboard')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-[14px] font-bold text-on-primary shadow-gold transition hover:scale-[1.02]">View My Bookings <span className="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+              <a href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}?text=${encodeURIComponent(`Hi, I've submitted a booking enquiry on ArtistManch. My Lead ID is ${leadId}. Please help me with the next steps.`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-[14px] font-bold text-white" style={{ background: '#25D366' }}><span className="material-symbols-outlined">chat</span> Contact on WhatsApp</a>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+            <div className="flex flex-col gap-5 lg:col-span-8">
+              <section id="booking-section-1" className={sectionCard}>
+                <SectionHeading number={1} title="Occasion & Artist Type" description="Tell us what you're celebrating, where it is, and which performer you need." complete={occasionComplete} />
+                <Step1 eventType={eventType} setEventType={setEventType} otherEventType={otherEventType} setOtherEventType={setOtherEventType} city={city} setCity={setCity} artistType={artistType} setArtistType={setArtistType} otherArtistType={otherArtistType} setOtherArtistType={setOtherArtistType} selectedArtist={wizardData.selectedArtist} />
+                {!occasionComplete && <p className="mt-4 text-[12px] text-on-surface-variant">Select an occasion, enter the city, and choose an artist type to unlock the next section.</p>}
+              </section>
 
-        {/* Navigation Buttons */}
-        {currentStep < 9 && (
-          <div className="flex items-center justify-between mt-8 pt-4 border-t border-outline-variant/20">
-            {currentStep > 1 ? (
-              <button onClick={handleBack} className="flex items-center gap-1 text-[14px] text-on-surface-variant hover:text-on-surface transition-colors font-bold">
-                <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                <span>Back</span>
-              </button>
-            ) : <div />}
+              {occasionComplete ? (
+                <section id="booking-section-2" className={sectionCard}>
+                  <SectionHeading number={2} title="Choose Your Budget" description="Select the estimated artist budget that works for your event." complete={budgetComplete} />
+                  <Step3 selectedBudget={selectedBudget} setSelectedBudget={setSelectedBudget} />
+                  <div className="mt-5 rounded-xl border border-outline-variant/20 bg-surface-container p-4">
+                    <label htmlFor="booking-coupon" className="mb-2 block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Festive Coupon</label>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <input id="booking-coupon" value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="FESTIVE10" className="min-w-0 flex-1 rounded-lg border border-outline-variant/40 bg-surface-container-high px-3 py-2.5 text-[14px] text-on-surface outline-none focus:border-primary" />
+                      <button type="button" onClick={() => { setCouponCode('FESTIVE10'); setOfferSecondsLeft(300); }} className="rounded-lg bg-primary px-4 py-2.5 text-[13px] font-bold text-on-primary transition hover:opacity-90">Apply FESTIVE10</button>
+                    </div>
+                    {couponApplied && <p className="mt-2 text-[12px] font-semibold text-primary">Coupon applied. Your estimated advance has been updated.</p>}
+                  </div>
+                </section>
+              ) : <LockedSection number={2} title="Choose Your Budget" description="Complete Occasion & Artist Type to unlock budget options." />}
 
-            {currentStep < 8 && (
-              <button
-                id={`wizard-next-step-${currentStep}`}
-                onClick={handleNext}
-                disabled={saving}
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary-container hover:bg-primary text-on-primary font-bold text-[14px] rounded-xl shadow-gold hover:shadow-gold-lg transition-all hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {saving ? (
-                  <>
-                    <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                    <span>Saving Enquiry...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{currentStep === 6 ? 'Save & Review Booking' : 'Continue'}</span>
-                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                  </>
-                )}
-              </button>
-            )}
+              {occasionComplete && budgetComplete ? (
+                <section id="booking-section-3" className={sectionCard}>
+                  <SectionHeading number={3} title="Event Date & Time" description="Choose the date and approximate start time for your celebration." complete={dateComplete} />
+                  <Step4 eventDate={eventDate} setEventDate={setEventDate} eventTime={eventTime} setEventTime={setEventTime} />
+                </section>
+              ) : <LockedSection number={3} title="Event Date & Time" description="Select a budget to unlock event scheduling." />}
+
+              {occasionComplete && budgetComplete && dateComplete ? (
+                <section id="booking-section-4" className={sectionCard}>
+                  <SectionHeading number={4} title="Contact & Venue Details" description="Share your contact information so our team can coordinate your booking." complete={contactComplete} />
+                  <Step6 customerName={customerName} setCustomerName={setCustomerName} customerEmail={customerEmail} setCustomerEmail={setCustomerEmail} customerPhone={customerPhone} setCustomerPhone={(value) => setCustomerPhone(value.replace(/\D/g, '').slice(0, 10))} venueAddress={venueAddress} setVenueAddress={setVenueAddress} termsAccepted={termsAccepted} setTermsAccepted={setTermsAccepted} />
+                </section>
+              ) : <LockedSection number={4} title="Contact & Venue Details" description="Complete the event date to unlock your contact details." />}
+
+              {contactComplete && selectedBudget ? (
+                <section id="booking-section-5" className={sectionCard}>
+                  <SectionHeading number={5} title="Review & Submit Enquiry" description="Check your booking details and submit your enquiry when you're ready." complete={false} />
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {[
+                      ['Occasion', resolvedEventType], ['City', city], ['Artist type', resolvedArtistType],
+                      ['Budget', selectedBudget.displayLabel], ['Event date', eventDate],
+                      ['Showtime', eventTime || 'Not specified'], ['Name', customerName],
+                      ['Email', customerEmail], ['Mobile', `+91 ${customerPhone}`],
+                      ['Venue', venueAddress || 'To be confirmed'],
+                    ].map(([label, value]) => <div key={label} className="rounded-lg bg-surface-container p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">{label}</p><p className="mt-1 break-words text-[14px] font-semibold text-on-surface">{value}</p></div>)}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-primary/25 bg-primary/10 p-4">
+                    <div><p className="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Estimated advance</p><p className="mt-1 font-playfair text-[30px] font-bold text-primary">₹{advanceAmount.toLocaleString('en-IN')}</p><p className="text-[12px] text-on-surface-variant">{couponApplied ? '10% advance with coupon' : 'Standard 20% advance'}. Payment is coordinated after the enquiry is reviewed.</p></div>
+                    <span className="material-symbols-outlined text-[30px] text-primary">receipt_long</span>
+                  </div>
+                  <button type="button" onClick={handleSubmit} disabled={saving} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-[15px] font-bold text-on-primary shadow-gold transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">
+                    {saving ? <><span className="material-symbols-outlined animate-spin">progress_activity</span> Saving your enquiry...</> : <>Submit Booking Enquiry <span className="material-symbols-outlined">arrow_forward</span></>}
+                  </button>
+                  <p className="mt-3 text-center text-[12px] text-on-surface-variant">Submitting saves your enquiry; it does not charge your card or confirm artist availability.</p>
+                </section>
+              ) : <LockedSection number={5} title="Review & Submit Enquiry" description="Complete your required contact details and accept the terms to review and submit." />}
+            </div>
+
+            <aside className="lg:sticky lg:top-28 lg:col-span-4">
+              <div className="flex flex-col gap-4 rounded-xl border border-outline-variant/20 bg-surface-container p-5 shadow-lg md:p-6">
+                <div className="flex items-center justify-between"><span className="text-[11px] font-bold uppercase tracking-wider text-secondary">Booking estimate</span><span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary"><span className="material-symbols-outlined text-[13px]">shield</span> ENQUIRY ONLY</span></div>
+                {offerSecondsLeft !== null && <div className={`rounded-xl border p-3 ${offerSecondsLeft > 0 ? 'border-primary/30 bg-primary/10' : 'border-error/30 bg-error-container/20'}`}><div className="flex items-center justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Festive offer timer</p><p className="mt-1 text-[12px] text-on-surface-variant">{offerSecondsLeft > 0 ? 'Complete your enquiry before the offer timer ends.' : 'Timer ended. Apply the coupon again to restart the 5-minute window.'}</p></div><span className={`font-mono text-[24px] font-bold tabular-nums ${offerSecondsLeft > 0 ? 'text-primary' : 'text-error'}`}>{String(Math.floor(offerSecondsLeft / 60)).padStart(2, '0')}:{String(offerSecondsLeft % 60).padStart(2, '0')}</span></div></div>}
+                <div><p className="text-[12px] text-on-surface-variant">Selected budget</p><p className="mt-1 text-[20px] font-bold text-on-surface">{selectedBudget?.displayLabel || 'Not selected'}</p></div>
+                <div className="flex items-center justify-between border-t border-outline-variant/20 pt-3 text-[13px]"><span className="text-on-surface-variant">Standard advance (20%)</span><span className="font-bold text-on-surface">₹{selectedBudget ? selectedBudget.advanceStandard.toLocaleString('en-IN') : '—'}</span></div>
+                <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3"><div><p className="text-[12px] text-on-surface-variant">Your estimated advance</p><p className="mt-1 font-playfair text-[26px] font-bold text-primary">₹{selectedBudget ? advanceAmount.toLocaleString('en-IN') : '—'}</p></div><span className="material-symbols-outlined text-[24px] text-primary">payments</span></div>
+                <p className="text-[12px] text-on-surface-variant">{couponApplied ? 'FESTIVE10 / FIRST10 rate is reflected in the estimate.' : 'Apply FESTIVE10 to unlock the festive advance estimate and start the 5-minute timer.'}</p>
+                <div className="space-y-2 border-t border-outline-variant/20 pt-4">{['Your enquiry is saved securely', 'Artist availability is confirmed separately', 'Payment instructions follow review'].map((item) => <div key={item} className="flex items-start gap-2 text-[12px] text-on-surface-variant"><span className="material-symbols-outlined text-[16px] text-primary">check_circle</span><span>{item}</span></div>)}</div>
+              </div>
+            </aside>
           </div>
         )}
       </div>
@@ -424,51 +379,45 @@ export default function BookingWizardPage() {
 // ============================
 // Step 1: Occasion & City
 // ============================
-function Step1({ eventType, setEventType, city, setCity }: {
+function Step1({ eventType, setEventType, otherEventType, setOtherEventType, city, setCity, artistType, setArtistType, otherArtistType, setOtherArtistType, selectedArtist }: {
   eventType: string; setEventType: (v: string) => void;
+  otherEventType: string; setOtherEventType: (v: string) => void;
   city: string; setCity: (v: string) => void;
+  artistType: string; setArtistType: (v: string) => void;
+  otherArtistType: string; setOtherArtistType: (v: string) => void;
+  selectedArtist?: { professional_name: string; category: string; profile_pic: string };
 }) {
   return (
-    <div className="bg-surface-container-low p-6 md:p-8 rounded-xl border border-outline-variant/30 flex flex-col gap-6">
-      <div>
-        <h2 className="font-playfair text-[28px] font-semibold text-on-surface mb-1">Tell us about your celebration</h2>
-        <p className="text-[15px] text-on-surface-variant">Start by selecting your event type and location.</p>
-      </div>
-
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <label className="font-bold text-[12px] text-on-surface uppercase tracking-wider">Celebration Occasion *</label>
         <div className="relative">
           <span className="material-symbols-outlined absolute left-3 top-3.5 text-on-surface-variant text-[20px]">event</span>
-          <select
-            value={eventType}
-            onChange={(e) => setEventType(e.target.value)}
-            id="event-type-select"
-            className="w-full bg-surface-container-high text-on-surface pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary appearance-none text-[15px]"
-          >
+          <select value={eventType} onChange={(e) => setEventType(e.target.value)} id="event-type-select" className="w-full appearance-none rounded-xl bg-surface-container-high py-3 pl-10 pr-4 text-[15px] text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
             <option value="">Select event type...</option>
             {EVENT_TYPES.map((et) => <option key={et} value={et}>{et}</option>)}
+            <option value="Other">Other</option>
           </select>
-          <span className="material-symbols-outlined absolute right-3 top-3.5 text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+          <span className="material-symbols-outlined pointer-events-none absolute right-3 top-3.5 text-[20px] text-on-surface-variant">expand_more</span>
         </div>
+        {eventType === 'Other' && <input value={otherEventType} onChange={(e) => setOtherEventType(e.target.value)} placeholder="Enter your celebration occasion" className="w-full rounded-xl bg-surface-container-high px-4 py-3 text-[15px] text-on-surface focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Other celebration occasion" />}
       </div>
-
       <div className="flex flex-col gap-2">
         <label className="font-bold text-[12px] text-on-surface uppercase tracking-wider">Event City / Destination *</label>
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-3.5 text-on-surface-variant text-[20px]">location_on</span>
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Enter venue city..."
-            id="event-city-input"
-            list="cities-list"
-            className="w-full bg-surface-container-high text-on-surface pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-[15px]"
-          />
-          <datalist id="cities-list">
-            {MAJOR_CITIES.map((c) => <option key={c} value={c} />)}
-          </datalist>
+          <span className="material-symbols-outlined absolute left-3 top-3.5 text-[20px] text-on-surface-variant">location_on</span>
+          <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Enter venue city..." id="event-city-input" list="cities-list" className="w-full rounded-xl bg-surface-container-high py-3 pl-10 pr-4 text-[15px] text-on-surface focus:outline-none focus:ring-2 focus:ring-primary" />
+          <datalist id="cities-list">{MAJOR_CITIES.map((c) => <option key={c} value={c} />)}</datalist>
         </div>
+      </div>
+      {selectedArtist && <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 p-3"><img src={selectedArtist.profile_pic} alt={selectedArtist.professional_name} className="h-11 w-11 rounded-lg object-cover" /><div><p className="text-[13px] font-bold text-primary">Selected artist: {selectedArtist.professional_name}</p><p className="text-[12px] text-on-surface-variant">Category: {selectedArtist.category}</p></div></div>}
+      <div>
+        <div className="mb-3"><label className="font-bold text-[12px] uppercase tracking-wider text-on-surface">What type of artist are you looking for? *</label><p className="mt-1 text-[13px] text-on-surface-variant">Choose a category to unlock the budget section.</p></div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {ARTIST_TYPES.map(({ value, icon, subtitle }) => <button key={value} type="button" onClick={() => setArtistType(value)} id={`artist-type-${value.replace(/\s+/g, '-').toLowerCase()}`} className={`flex min-h-[104px] flex-col items-center justify-center rounded-xl p-3 text-center transition-all ${artistType === value ? 'bg-primary/10 text-primary ring-2 ring-primary' : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant'}`}><span className="material-symbols-outlined mb-1 text-[27px]">{icon}</span><span className="text-[12px] font-bold">{value}</span><span className="mt-1 text-[11px] opacity-80">{subtitle}</span></button>)}
+          <button type="button" onClick={() => setArtistType('Other')} className={`flex min-h-[104px] flex-col items-center justify-center rounded-xl p-3 text-center transition-all ${artistType === 'Other' ? 'bg-primary/10 text-primary ring-2 ring-primary' : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant'}`}><span className="material-symbols-outlined mb-1 text-[27px]">edit_note</span><span className="text-[12px] font-bold">Other</span><span className="mt-1 text-[11px] opacity-80">Specify artist type</span></button>
+        </div>
+        {artistType === 'Other' && <input value={otherArtistType} onChange={(e) => setOtherArtistType(e.target.value)} placeholder="Enter the artist or performer type" className="mt-3 w-full rounded-xl bg-surface-container-high px-4 py-3 text-[15px] text-on-surface focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Other artist type" />}
       </div>
     </div>
   );
@@ -562,7 +511,7 @@ function Step3({ selectedBudget, setSelectedBudget }: {
                   <div className="absolute top-0 right-0 bg-primary text-on-primary font-bold text-[11px] px-2 py-0.5 rounded-bl-lg">SELECTED</div>
                 )}
                 <div>
-                  <span className={`font-bold text-[11px] uppercase tracking-wider block mb-1 ${isSelected ? 'text-primary' : 'text-on-surface-variant'}`}>{bracket.label}</span>
+                  {/* <span className={`font-bold text-[11px] uppercase tracking-wider block mb-1 ${isSelected ? 'text-primary' : 'text-on-surface-variant'}`}>{bracket.label}</span> */}
                   <span className={`font-playfair text-[22px] font-bold ${isSelected ? 'text-primary' : 'text-on-surface'}`}>{bracket.displayLabel}</span>
                   <p className="text-[13px] text-on-surface-variant mt-2">{bracket.description}</p>
                 </div>
@@ -591,48 +540,66 @@ function Step4({ eventDate, setEventDate, eventTime, setEventTime }: {
   eventDate: string; setEventDate: (v: string) => void;
   eventTime: string; setEventTime: (v: string) => void;
 }) {
-  const today = new Date().toISOString().split('T')[0];
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const initial = eventDate ? new Date(`${eventDate}T12:00:00`) : new Date();
+    return new Date(initial.getFullYear(), initial.getMonth(), 1);
+  });
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const selectedDate = eventDate ? new Date(`${eventDate}T12:00:00`) : null;
+  const monthStart = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
+  const mondayOffset = (monthStart.getDay() + 6) % 7;
+  const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate();
+  const calendarCells = Array.from({ length: Math.ceil((mondayOffset + daysInMonth) / 7) * 7 }, (_, index) => {
+    const day = index - mondayOffset + 1;
+    return day < 1 || day > daysInMonth ? null : new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day);
+  });
+  const displayDate = selectedDate ? selectedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Choose your event date';
+  const parsedTime = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(eventTime);
+  const hour24 = parsedTime ? Number(parsedTime[1]) : 19;
+  const minuteValue = parsedTime ? parsedTime[2] : '00';
+  const period = hour24 >= 12 ? 'PM' : 'AM';
+  const hour12 = hour24 % 12 || 12;
+  const displayTime = parsedTime ? `${hour12}:${minuteValue} ${period}` : 'Choose showtime';
+  const setTimeParts = (hour: number, minute: string, meridiem: string) => {
+    const h24 = meridiem === 'PM' ? (hour % 12) + 12 : hour % 12;
+    setEventTime(`${String(h24).padStart(2, '0')}:${minute}`);
+  };
+
   return (
-    <div className="bg-surface-container-low p-6 md:p-8 rounded-xl border border-outline-variant/30 flex flex-col gap-6">
-      <div>
-        <h2 className="font-playfair text-[28px] font-semibold text-on-surface mb-1">Event Date & Time</h2>
-        <p className="text-[15px] text-on-surface-variant">When is your celebration?</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="font-bold text-[12px] text-on-surface uppercase tracking-wider" htmlFor="event-date">Event Date *</label>
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-3.5 text-on-surface-variant text-[20px]">calendar_today</span>
-            <input
-              id="event-date"
-              type="date"
-              value={eventDate}
-              min={today}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="w-full bg-surface-container-high text-on-surface pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-[15px]"
-            />
-          </div>
+    <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5 md:p-7">
+      <div className="mb-6"><h2 className="font-playfair text-[28px] font-semibold text-on-surface md:text-[30px]">Event Date & Time</h2><p className="mt-1 text-[15px] text-on-surface-variant">When is your celebration?</p></div>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="relative min-w-0">
+          <label className="mb-2 block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="event-date-trigger">Event date <span className="text-primary">*</span></label>
+          <button id="event-date-trigger" type="button" aria-haspopup="dialog" aria-expanded={calendarOpen} onClick={() => { setCalendarOpen(v => !v); setTimeOpen(false); }} className={`group flex min-h-[76px] w-full items-center gap-4 rounded-xl border bg-surface-container-high px-4 py-4 text-left transition-all hover:border-primary/60 hover:bg-surface-container ${calendarOpen ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/30'}`}>
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${eventDate ? 'border-primary/40 bg-primary/15 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant group-hover:text-primary'}`}><span className="material-symbols-outlined text-[23px]">calendar_month</span></span>
+            <span className="min-w-0 flex-1"><span className={`block truncate text-[15px] font-semibold ${eventDate ? 'text-on-surface' : 'text-on-surface-variant'}`}>{displayDate}</span><span className="mt-1 block text-[11px] text-on-surface-variant">Select a date for your event</span></span>
+            <span className={`material-symbols-outlined text-[20px] transition-transform ${calendarOpen ? 'rotate-180 text-primary' : 'text-on-surface-variant'}`}>expand_more</span>
+          </button>
+          {calendarOpen && <div role="dialog" aria-label="Choose event date" className="absolute left-0 top-full z-40 mt-3 w-full min-w-[290px] rounded-2xl border border-primary/25 bg-[#19171d] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.55)] sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Choose a date</p><h3 className="mt-1 font-playfair text-[21px] font-semibold text-[#f7f1e8]">{visibleMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</h3></div><div className="flex gap-1"><button type="button" aria-label="Previous month" disabled={visibleMonth.getFullYear() === today.getFullYear() && visibleMonth.getMonth() === today.getMonth()} onClick={() => setVisibleMonth(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1))} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#e9dfd0] transition hover:border-primary/50 hover:text-primary disabled:opacity-25"><span className="material-symbols-outlined">chevron_left</span></button><button type="button" aria-label="Next month" onClick={() => setVisibleMonth(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1))} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#e9dfd0] transition hover:border-primary/50 hover:text-primary"><span className="material-symbols-outlined">chevron_right</span></button></div></div>
+            <div className="mb-2 grid grid-cols-7 gap-1 text-center">{['M','T','W','T','F','S','S'].map((day, i) => <span key={`${day}-${i}`} className="py-2 text-[11px] font-bold text-[#9f968b]">{day}</span>)}</div>
+            <div className="grid grid-cols-7 gap-1">{calendarCells.map((date, i) => { if (!date) return <span key={`blank-${i}`} className="aspect-square" />; const key = dateKey(date); const disabled = date < today; const selected = eventDate === key; const isToday = key === dateKey(today); return <button key={key} type="button" disabled={disabled} onClick={() => { setEventDate(key); setCalendarOpen(false); }} className={`relative aspect-square rounded-lg text-[13px] font-semibold transition-all disabled:cursor-not-allowed disabled:text-white/20 ${selected ? 'bg-primary text-[#211a0b] shadow-[0_0_0_2px_rgba(242,202,80,0.22)]' : disabled ? '' : 'text-[#f0e9df] hover:bg-primary/15 hover:text-primary'} ${isToday && !selected ? 'border border-primary/60' : ''}`}>{date.getDate()}{isToday && !selected && <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />}</button>; })}</div>
+            <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3"><button type="button" onClick={() => setEventDate('')} className="text-[12px] font-semibold text-[#bcb1a3] hover:text-white">Clear date</button><button type="button" onClick={() => { setVisibleMonth(new Date(today.getFullYear(), today.getMonth(), 1)); setEventDate(dateKey(today)); setCalendarOpen(false); }} className="rounded-lg px-3 py-2 text-[12px] font-bold text-primary hover:bg-primary/10">Today</button></div>
+          </div>}
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-bold text-[12px] text-on-surface uppercase tracking-wider" htmlFor="event-time">Showtime (Approximate)</label>
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-3.5 text-on-surface-variant text-[20px]">schedule</span>
-            <input
-              id="event-time"
-              type="time"
-              value={eventTime}
-              onChange={(e) => setEventTime(e.target.value)}
-              className="w-full bg-surface-container-high text-on-surface pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-[15px]"
-            />
-          </div>
+        <div className="relative min-w-0">
+          <label className="mb-2 block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="event-time-trigger">Showtime <span className="font-medium normal-case tracking-normal text-on-surface-variant/70"></span></label>
+          <button id="event-time-trigger" type="button" aria-haspopup="dialog" aria-expanded={timeOpen} onClick={() => { setTimeOpen(v => !v); setCalendarOpen(false); }} className={`group flex min-h-[76px] w-full items-center gap-4 rounded-xl border bg-surface-container-high px-4 py-4 text-left transition-all hover:border-primary/60 hover:bg-surface-container ${timeOpen ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/30'}`}>
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${eventTime ? 'border-primary/40 bg-primary/15 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant group-hover:text-primary'}`}><span className="material-symbols-outlined text-[23px]">schedule</span></span><span className="min-w-0 flex-1"><span className={`block text-[15px] font-semibold ${eventTime ? 'text-on-surface' : 'text-on-surface-variant'}`}>{displayTime}</span><span className="mt-1 block text-[11px] text-on-surface-variant">Choose an approximate start time</span></span><span className={`material-symbols-outlined text-[20px] transition-transform ${timeOpen ? 'rotate-180 text-primary' : 'text-on-surface-variant'}`}>expand_more</span>
+          </button>
+          {timeOpen && <div role="dialog" aria-label="Choose showtime" className="absolute left-0 top-full z-40 mt-3 w-full min-w-[290px] rounded-2xl border border-primary/25 bg-[#19171d] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.55)] sm:p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Set showtime</p><div className="my-4 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-center"><span className="font-playfair text-[32px] font-semibold tracking-wide text-[#f7f1e8]">{hour12}:{minuteValue} <span className="text-primary">{period}</span></span><p className="mt-1 text-[11px] text-[#a99f92]">Approximate performance start</p></div>
+            <div className="grid grid-cols-3 gap-3"><div><label htmlFor="time-hour" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#a99f92]">Hour</label><select id="time-hour" value={hour12} onChange={e => setTimeParts(Number(e.target.value), minuteValue, period)} className="w-full rounded-xl border border-white/10 bg-[#242129] px-3 py-3 text-[15px] font-semibold text-[#f7f1e8] outline-none focus:border-primary">{Array.from({ length: 12 }, (_, i) => i + 1).map(hour => <option key={hour} value={hour}>{String(hour).padStart(2, '0')}</option>)}</select></div><div><label htmlFor="time-minute" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#a99f92]">Minute</label><select id="time-minute" value={minuteValue} onChange={e => setTimeParts(hour12, e.target.value, period)} className="w-full rounded-xl border border-white/10 bg-[#242129] px-3 py-3 text-[15px] font-semibold text-[#f7f1e8] outline-none focus:border-primary">{['00','15','30','45'].map(minute => <option key={minute} value={minute}>{minute}</option>)}</select></div><div><label htmlFor="time-period" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#a99f92]">Period</label><select id="time-period" value={period} onChange={e => setTimeParts(hour12, minuteValue, e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#242129] px-3 py-3 text-[15px] font-semibold text-[#f7f1e8] outline-none focus:border-primary"><option value="AM">AM</option><option value="PM">PM</option></select></div></div>
+            <div className="mt-4 flex gap-2"><button type="button" onClick={() => { setEventTime(''); setTimeOpen(false); }} className="flex-1 rounded-lg border border-white/10 px-3 py-2.5 text-[12px] font-semibold text-[#bcb1a3] hover:text-white">Clear</button><button type="button" onClick={() => { setTimeParts(hour12, minuteValue, period); setTimeOpen(false); }} className="flex-1 rounded-lg bg-primary px-3 py-2.5 text-[12px] font-bold text-[#211a0b] hover:brightness-110">Confirm time</button></div>
+          </div>}
         </div>
       </div>
-      <div className="p-4 rounded-xl bg-surface-container border border-outline-variant/20 flex items-start gap-3">
-        <span className="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">info</span>
-        <p className="text-[13px] text-on-surface-variant">
-          Artists typically arrive 2 hours before showtime for soundcheck. We'll coordinate the exact schedule after your booking is confirmed.
-        </p>
-      </div>
+      <div className="mt-5 flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/5 p-4"><span className="material-symbols-outlined mt-0.5 shrink-0 text-[20px] text-primary">info</span><p className="text-[13px] leading-5 text-on-surface-variant">Artists typically arrive 2 hours before showtime for soundcheck. We'll coordinate the exact schedule after your booking is confirmed.</p></div>
     </div>
   );
 }
@@ -705,7 +672,7 @@ function Step6({
       <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-3">
         <span className="material-symbols-outlined text-primary text-[20px]">save</span>
         <p className="text-[13px] text-primary font-semibold">
-          Clicking "Save & Review Booking" will save your complete enquiry to our system and generate a Lead ID.
+          Your details will be saved when you submit the enquiry in the final review section.
         </p>
       </div>
 

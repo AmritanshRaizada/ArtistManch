@@ -30,7 +30,7 @@ export default function BrowseArtistsPage() {
         <div className="absolute top-0 left-1/4 w-[500px] h-[300px] rounded-full blur-[120px] pointer-events-none -z-10" style={{ background: 'rgba(96,1,209,0.2)' }} />
         <div className="max-w-[1320px] mx-auto">
           <div className="mb-8">
-            <span className="font-bold text-[12px] uppercase tracking-[0.18em] text-primary block mb-2">Our Roster</span>
+            {/* <span className="font-bold text-[12px] uppercase tracking-[0.18em] text-primary block mb-2">Our Roster</span> */}
             <h1 className="font-playfair text-[36px] md:text-[56px] font-bold text-on-surface" style={{ letterSpacing: '-0.02em' }}>
               Browse <span className="italic font-normal text-primary">Artists & Singers</span>
             </h1>
