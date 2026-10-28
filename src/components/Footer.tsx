@@ -50,23 +50,23 @@ function FooterLink({
   );
 }
 
-function FooterAnchor({
-  href,
-  children,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  return (
-    <a href={href} onClick={scrollToTop} className={linkClass}>
-      <span
-        className="h-px w-0 shrink-0 bg-[#b779ff] transition-all duration-200 group-hover:w-3"
-        aria-hidden="true"
-      />
-      {children}
-    </a>
-  );
-}
+// function FooterAnchor({
+//   href,
+//   children,
+// }: {
+//   href: string;
+//   children: ReactNode;
+// }) {
+//   return (
+//     <a href={href} onClick={scrollToTop} className={linkClass}>
+//       <span
+//         className="h-px w-0 shrink-0 bg-[#b779ff] transition-all duration-200 group-hover:w-3"
+//         aria-hidden="true"
+//       />
+//       {children}
+//     </a>
+//   );
+// }
 
 export default function Footer() {
   return (
