@@ -1,20 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { BookingProvider } from './contexts/BookingContext';
-// import Navbar from './components/Navbar';
-// import Footer from './components/Footer';
-// import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// import LandingPage from './pages/LandingPage';
-// import LoginPage from './pages/LoginPage';
-// import SignupPage from './pages/SignupPage';
-// import BrowseArtistsPage from './pages/BrowseArtistsPage';
-// import BookingWizardPage from './pages/BookingWizardPage';
-// import JoinAsArtistPage from './pages/JoinAsArtistPage';
-// import DashboardPage from './pages/DashboardPage';
-// import EventQuoteForm from './pages/PostYourRequirement';
-// import ArtistFAQPage from './pages/ArtistFAQPage.tsx';
-// import ContactUsPage from './pages/ContactUsPage';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import BrowseArtistsPage from './pages/BrowseArtistsPage';
+import BookingWizardPage from './pages/BookingWizardPage';
+import JoinAsArtistPage from './pages/JoinAsArtistPage';
+import DashboardPage from './pages/DashboardPage';
+import EventQuoteForm from './pages/PostYourRequirement';
+import ArtistFAQPage from './pages/ArtistFAQPage.tsx';
+import ContactUsPage from './pages/ContactUsPage';
 
 
 
