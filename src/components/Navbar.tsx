@@ -68,19 +68,6 @@ export default function Navbar() {
       <div className="relative z-[70] w-full h-20 shrink-0 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_12px_32px_-4px_rgba(36,17,61,0.25)]">
         <div className="max-w-[1440px] mx-auto h-full px-4 md:px-8 xl:px-12 flex items-center gap-4 lg:gap-7">
 
-          {/* Mobile Menu Toggle */}
-          <button
-            type="button"
-            onClick={() => setMobileOpen((open) => !open)}
-            className="lg:hidden w-9 h-9 shrink-0 flex items-center justify-center text-on-surface rounded-lg hover:bg-surface-container-high"
-            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={mobileOpen}
-          >
-            <span className="material-symbols-outlined text-[24px]">
-              {mobileOpen ? 'close' : 'menu'}
-            </span>
-          </button>
-
           {/* ArtistManch Logo: Far Left */}
           <Link
             to="/"
@@ -106,6 +93,21 @@ export default function Navbar() {
               </span>
             </div>
           </Link>
+
+          <div className="flex-1 min-w-0" />
+
+          {/* Mobile Menu Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((open) => !open)}
+            className="lg:hidden w-9 h-9 shrink-0 flex items-center justify-center text-on-surface rounded-lg hover:bg-surface-container-high"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileOpen}
+          >
+            <span className="material-symbols-outlined text-[24px]">
+              {mobileOpen ? 'close' : 'menu'}
+            </span>
+          </button>
 
           {/* Desktop Navigation */}
           <nav
@@ -217,8 +219,6 @@ export default function Navbar() {
             </div>
           </nav>
 
-          <div className="flex-1 min-w-0" />
-
           {/* Right Side: Requirement + Authentication */}
           <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
 
@@ -235,10 +235,10 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link
-                  to="/browse"
+                  to="/dashboard"
                   className="hidden sm:inline-flex items-center gap-1 px-3 py-2 bg-primary-container hover:bg-primary text-on-primary font-bold text-[13px] rounded-xl shadow-gold transition-all"
                 >
-                  <span>Find My Artist</span>
+                  <span>My Bookings</span>
                   <span className="material-symbols-outlined text-[17px]">
                     arrow_forward
                   </span>

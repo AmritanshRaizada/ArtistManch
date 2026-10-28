@@ -123,14 +123,26 @@ export const ARTISTS: Artist[] = [
   },
 ];
 
+
 export const ARTIST_CATEGORIES = [
   'All Categories',
-  'Singer',
-  'Anchor / Emcee',
+  'Celebrity Appearance',
+  'Comedian',
+  'Dancer/Troupe',
+  'DJ',
+  'Anchor/Emcee',
   'Instrumentalist',
-  'Sufi & Ghazal',
-  'Band',
+  'Live Band',
+  'Magician',
+  'Make-up Artist/Stylist',
+  'Model',
+  'Photo/Videographer',
+  'Singer',
+  'Speaker',
+  'Variety Artist',
+  'Influencer',
 ];
+
 
 export const BUDGET_BRACKETS: BudgetBracket[] = [
   {
