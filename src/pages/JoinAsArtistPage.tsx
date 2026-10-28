@@ -56,7 +56,7 @@ export default function JoinAsArtistPage() {
               style={{ background: '#25D366' }}
             >
               <span className="material-symbols-outlined text-[22px]">chat</span>
-              <span>Apply via WhatsApp</span>
+              <span>Connect with Us</span>
             </a>
             <a
               href="#how-it-works"
@@ -68,7 +68,7 @@ export default function JoinAsArtistPage() {
           </div>
 
           {/* Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+          {/* <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
             {[
               { stat: '1,420+', label: 'Events Hosted' },
               { stat: '150+', label: 'Artists on Roster' },
@@ -80,7 +80,7 @@ export default function JoinAsArtistPage() {
                 <p className="font-bold text-[11px] text-on-surface-variant uppercase tracking-wider mt-1">{label}</p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </section>
 

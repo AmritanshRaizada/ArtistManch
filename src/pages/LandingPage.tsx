@@ -91,14 +91,14 @@ export default function LandingPage() {
               <span className="text-primary">Reserve Verified Artists</span>
             </h1>
 
-            <p className="text-[16px] md:text-[19px] text-on-surface-variant mb-3">
+            {/* <p className="text-[16px] md:text-[19px] text-on-surface-variant mb-3">
               Secure your favourite artist with a special festive advance of
-            </p>
+            </p> */}
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <span className="font-playfair text-3xl md:text-4xl font-bold text-primary">
+              {/* <span className="font-playfair text-3xl md:text-4xl font-bold text-primary">
                 10% Advance
-              </span>
+              </span> */}
 
               <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs md:text-sm">
                 <span className="text-on-surface-variant">Regular</span>
@@ -107,6 +107,9 @@ export default function LandingPage() {
                   <span className="absolute left-0 right-0 top-1/2 h-px bg-on-surface-variant rotate-[-8deg]" />
                 </span>
                 <span className="text-primary font-semibold">Festive offer</span>
+                <span className="font-semibold text-1xl md:text-2xl font-bold text-primary">
+                10% Advance
+              </span>
               </span>
             </div>
           </div>
@@ -122,7 +125,7 @@ export default function LandingPage() {
               onClick={() => navigate('/browse')}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.35)] hover:scale-[1.03] transition-all"
             >
-              <span>Find My Artist</span>
+              <span>Browse Specific Artiist</span>
               <span className="material-symbols-outlined text-[19px]">magic_button</span>
             </button>
             <button
@@ -130,7 +133,7 @@ export default function LandingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-container-high/80 backdrop-blur-md text-on-surface font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl hover:bg-surface-variant hover:text-primary transition-all shadow-md border border-outline-variant/30"
             >
               <span className="material-symbols-outlined text-secondary text-[19px]">graphic_eq</span>
-              <span>Book an Artist</span>
+              <span>Find the Right Artist for My Event</span>
             </button>
           </div>
 
@@ -268,91 +271,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section 4: Featured Artists */}
-      <section className="w-full py-16 px-4 md:px-12 bg-surface-container-lowest" id="featured-talent">
-        <div className="max-w-[1320px] mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-            <div>
-              <span className="font-bold text-[12px] uppercase tracking-[0.18em] text-primary block mb-2">Curated Master Roster</span>
-              <h2 className="font-playfair text-[40px] font-semibold text-on-surface" style={{ letterSpacing: '-0.015em' }}>Meet the Talent Behind Your Moments</h2>
-              <p className="text-[15px] text-on-surface-variant mt-1">Discover performers who bring pure charisma, refined pitch, and showmanship to your event.</p>
-            </div>
-            <button onClick={() => navigate('/browse')} className="inline-flex items-center gap-2 text-primary hover:text-primary-fixed transition-colors font-bold text-[14px]">
-              <span>Browse All 150+ Artists</span>
-              <span className="material-symbols-outlined text-[18px]">trending_flat</span>
-            </button>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6">
-            {ARTIST_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => navigate('/browse')}
-                className="px-4 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-variant text-on-surface-variant font-bold text-[11px] uppercase tracking-wider shrink-0 transition-colors"
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Artist List Rows */}
-          <div className="space-y-2">
-            {featuredArtists.map((artist) => (
-              <div
-                key={artist.id}
-                className="group bg-surface-container hover:bg-surface-container-high transition-all duration-300 p-4 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-md"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden shadow-lg">
-                    <img src={artist.profile_pic} alt={artist.professional_name} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-playfair text-[22px] font-semibold text-on-surface group-hover:text-primary transition-colors truncate">{artist.professional_name}</h3>
-                      {artist.verified && (
-                        <span className="badge-gold">
-                          <span className="material-symbols-outlined text-[13px]">verified</span> Verified Artist
-                        </span>
-                      )}
-                      <span className="inline-flex items-center text-primary font-bold text-[14px]">
-                        <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span> {artist.rating}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 text-on-surface-variant text-[13px] flex-wrap">
-                      <span className="text-secondary font-bold text-[11px] uppercase tracking-wider">{artist.category}</span>
-                      <span>•</span>
-                      <span>{artist.tagline}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between w-full md:w-auto md:justify-end gap-6 shrink-0">
-                  <div className="text-left md:text-right">
-                    <p className="font-bold text-[11px] text-on-surface-variant uppercase tracking-wider">Starting From</p>
-                    <p className="font-semibold text-[18px] text-on-surface font-bold">₹{(artist.starting_price || 0).toLocaleString('en-IN')} <span className="text-[13px] text-on-surface-variant font-normal">/ session</span></p>
-                  </div>
-                  <button
-                    onClick={() => handleEnquireNow(artist)}
-                    className="px-4 py-2.5 rounded-xl bg-primary text-on-primary hover:bg-primary-container font-bold text-[11px] uppercase tracking-wider transition-all shadow-md"
-                  >
-                    Enquire Now
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <button
-              onClick={() => navigate('/browse')}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-gold hover:scale-[1.02] transition-all"
-            >
-              <span>Browse All Artists</span>
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </button>
-          </div>
-        </div>
-      </section>
+      
 
       {/* Section 5: Testimonials */}
       <section className="w-full py-16 px-4 md:px-12 bg-surface-container-lowest">
