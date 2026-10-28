@@ -7,7 +7,7 @@ import {
 
 const GOLD = '#e2bf59';
 const MUTED = '#aaa0b5';
-const PANEL = '#15111b';
+// const PANEL = '#15111b';
 const BORDER = 'rgba(255,255,255,0.10)';
 
 function SearchIcon() {
