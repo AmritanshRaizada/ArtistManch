@@ -1,25 +1,7 @@
-
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-
-const ARTIST_CATEGORIES = [
-  'Celebrity Appearance',
-  'Comedian',
-  'Dancer/Troupe',
-  'DJ',
-  'Anchor/Emcee',
-  'Instrumentalist',
-  'Live Band',
-  'Magician',
-  'Make-up Artist/Stylist',
-  'Model',
-  'Photo/Videographer',
-  'Singer',
-  'Speaker',
-  'Variety Artist',
-  'Influencer',
-];
+import { ARTIST_CATEGORIES } from '../data/artists';
 
 export default function Navbar() {
   const { user, logout } = useAuth();

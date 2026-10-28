@@ -1,19 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { ARTISTS, ARTIST_CATEGORIES } from '../data/artists';
-import { useBooking } from '../contexts/BookingContext';
-import type { Artist } from '../types';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { setSelectedArtist } = useBooking();
-
-  const featuredArtists = ARTISTS.slice(0, 4);
-
-  function handleEnquireNow(artist: Artist) {
-    setSelectedArtist(artist);
-    navigate('/booking');
-  }
-
   return (
     <div className="w-full flex flex-col bg-surface min-h-screen">
       {/* Section 1: Cinematic Hero */}

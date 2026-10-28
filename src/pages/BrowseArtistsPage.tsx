@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ARTISTS, ARTIST_CATEGORIES } from '../data/artists';
 import { useBooking } from '../contexts/BookingContext';
 import type { Artist } from '../types';
@@ -8,13 +8,42 @@ export default function BrowseArtistsPage() {
   const navigate = useNavigate();
   const { setSelectedArtist } = useBooking();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All Categories');
+  const [searchParams] = useSearchParams();
+
+  const [activeCategory, setActiveCategory] = useState(
+    searchParams.get('category') || 'All Categories'
+  );
+
+  useEffect(() => {
+    const category = searchParams.get('category');
+
+    if (!category) {
+      setActiveCategory('All Categories');
+      return;
+    }
+
+    const matchedCategory = ARTIST_CATEGORIES.find(
+      (item) => item.toLowerCase() === category.toLowerCase()
+    );
+
+    setActiveCategory(matchedCategory || 'All Categories');
+  }, [searchParams]);
 
   const filteredArtists = ARTISTS.filter((artist) => {
-    const matchesSearch = artist.professional_name.toLowerCase().includes(searchQuery.toLowerCase())
-      || (artist.tagline || '').toLowerCase().includes(searchQuery.toLowerCase())
-      || (artist.genres || []).some(g => g.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = activeCategory === 'All Categories' || artist.category === activeCategory;
+    const matchesSearch =
+      artist.professional_name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      (artist.tagline || '')
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      (artist.genres || []).some((g) =>
+        g.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    const matchesCategory =
+      activeCategory === 'All Categories' ||
+      (artist.category || '').toLowerCase() ===
+        activeCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 

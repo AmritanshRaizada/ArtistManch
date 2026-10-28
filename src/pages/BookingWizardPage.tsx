@@ -8,14 +8,6 @@ import { useBooking } from '../contexts/BookingContext';
 import { ARTIST_TYPES, EVENT_TYPES, MAJOR_CITIES, BUDGET_BRACKETS } from '../data/artists';
 import type { BudgetBracket } from '../types';
 
-const FORM_SECTIONS = [
-  'Occasion & Artist',
-  'Budget',
-  'Date & Time',
-  'Contact Details',
-  'Review & Submit',
-];
-
 function generateSubmissionKey(): string {
   return `sk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -79,14 +71,11 @@ export default function BookingWizardPage() {
   const [couponCode, setCouponCode] = useState(wizardData.couponCode || '');
   const [eventDate, setEventDate] = useState(wizardData.eventDate || '');
   const [eventTime, setEventTime] = useState(wizardData.eventTime || '');
-  const [soundRequirements, setSoundRequirements] = useState(wizardData.soundRequirements || '');
   const [customerName, setCustomerName] = useState(wizardData.customerName || user?.displayName || '');
   const [customerEmail, setCustomerEmail] = useState(wizardData.customerEmail || user?.email || '');
   const [customerPhone, setCustomerPhone] = useState(wizardData.customerPhone || '');
   const [venueAddress, setVenueAddress] = useState(wizardData.venueAddress || '');
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [activeSection, setActiveSection] = useState(0);
-  const [sectionErrors, setSectionErrors] = useState<Record<string, string>>({});
   const [submissionKey] = useState(wizardData.submissionKey || generateSubmissionKey());
 
   useEffect(() => {
@@ -121,20 +110,6 @@ export default function BookingWizardPage() {
     };
   }, []);
 
-  // Track the section closest to the top of the viewport for the progress label.
-  useEffect(() => {
-    const onScroll = () => {
-      let nearest = 0;
-      FORM_SECTIONS.forEach((_, index) => {
-        const element = document.getElementById(`booking-section-${index + 1}`);
-        if (element && element.getBoundingClientRect().top < window.innerHeight * 0.55) nearest = index;
-      });
-      setActiveSection(nearest);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const couponApplied = couponCode.trim().toUpperCase() === 'FIRST10' || couponCode.trim().toUpperCase() === 'FESTIVE10';
   const advanceAmount = selectedBudget
@@ -206,7 +181,6 @@ export default function BookingWizardPage() {
         advanceAmount,
         eventDate: eventDate || null,
         eventTime: eventTime || null,
-        soundRequirements: soundRequirements || null,
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),
         customerPhone: customerPhone.replace(/\D/g, ''),
@@ -219,7 +193,7 @@ export default function BookingWizardPage() {
       await setDoc(doc(collection(db, 'leads'), submissionKey), payload, { merge: true });
       updateWizard({
         eventType: resolvedEventType, city, artistType: resolvedArtistType, budget: selectedBudget || undefined, couponCode: normalizedCoupon,
-        eventDate, eventTime, soundRequirements, customerName: customerName.trim(),
+        eventDate, eventTime, customerName: customerName.trim(),
         customerEmail: customerEmail.trim(), customerPhone: customerPhone.replace(/\D/g, ''),
         venueAddress, termsAccepted, submissionKey, leadId: finalLeadId,
       });
@@ -424,53 +398,6 @@ function Step1({ eventType, setEventType, otherEventType, setOtherEventType, cit
 }
 
 // ============================
-// Step 2: Artist Type
-// ============================
-function Step2({ artistType, setArtistType, selectedArtist }: {
-  artistType: string; setArtistType: (v: string) => void;
-  selectedArtist?: { professional_name: string; category: string; profile_pic: string };
-}) {
-  return (
-    <div className="bg-surface-container-low p-6 md:p-8 rounded-xl border border-outline-variant/30 flex flex-col gap-6">
-      <div>
-        <h2 className="font-playfair text-[28px] font-semibold text-on-surface mb-1">Select Performer Type</h2>
-        <p className="text-[15px] text-on-surface-variant">What kind of artist are you looking for?</p>
-      </div>
-
-      {selectedArtist && (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
-          <img src={selectedArtist.profile_pic} alt={selectedArtist.professional_name} className="w-10 h-10 rounded-lg object-cover" />
-          <div>
-            <p className="font-bold text-[13px] text-primary">Selected Artist: {selectedArtist.professional_name}</p>
-            <p className="text-[12px] text-on-surface-variant">Category: {selectedArtist.category}</p>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {ARTIST_TYPES.map(({ value, icon, subtitle }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setArtistType(value)}
-            id={`artist-type-${value.replace(/\s+/g, '-').toLowerCase()}`}
-            className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all text-center ${
-              artistType === value
-                ? 'bg-surface-container ring-2 ring-primary text-primary'
-                : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[28px] mb-1">{icon}</span>
-            <span className="font-bold text-[12px]">{value}</span>
-            <span className="font-bold text-[11px] opacity-80 mt-0.5">{subtitle}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================
 // Step 3: Budget
 // ============================
 function Step3({ selectedBudget, setSelectedBudget }: {
@@ -605,45 +532,6 @@ function Step4({ eventDate, setEventDate, eventTime, setEventTime }: {
 }
 
 // ============================
-// Step 5: Sound & Rider
-// ============================
-function Step5({ soundRequirements, setSoundRequirements }: {
-  soundRequirements: string; setSoundRequirements: (v: string) => void;
-}) {
-  return (
-    <div className="bg-surface-container-low p-6 md:p-8 rounded-xl border border-outline-variant/30 flex flex-col gap-6">
-      <div>
-        <h2 className="font-playfair text-[28px] font-semibold text-on-surface mb-1">Sound & Rider Requirements</h2>
-        <p className="text-[15px] text-on-surface-variant">Tell us about your venue's PA setup and any special requirements. (Optional)</p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <label className="font-bold text-[12px] text-on-surface uppercase tracking-wider" htmlFor="sound-requirements">Venue & Sound Details</label>
-        <textarea
-          id="sound-requirements"
-          value={soundRequirements}
-          onChange={(e) => setSoundRequirements(e.target.value)}
-          placeholder="e.g., 24ft x 16ft stage, in-house PA with sound engineer, wireless mics needed, outdoor garden setting..."
-          rows={4}
-          className="w-full bg-surface-container-high text-on-surface placeholder:text-on-surface-variant/40 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-[15px]"
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        {['Outdoor Venue', 'In-house PA System', 'Wireless Mics Needed', 'Projector / LED Wall', 'Dhol Player', 'Background Dancers'].map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setSoundRequirements(soundRequirements ? `${soundRequirements}, ${item}` : item)}
-            className="px-3 py-2 rounded-lg bg-surface-container border border-outline-variant/30 hover:border-primary/40 text-on-surface-variant hover:text-on-surface text-[13px] font-bold text-left transition-all"
-          >
-            + {item}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================
 // Step 6: Customer Details (CRITICAL - Firestore Save Happens Here)
 // ============================
 function Step6({
@@ -772,208 +660,6 @@ function Step6({
             I agree to the ArtistManch <a href="#" className="text-primary underline">Booking Terms & Conditions</a> and acknowledge the 100% advance refund policy window.
           </span>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================
-// Step 7: Booking Review
-// ============================
-function Step7({ wizardData, advanceAmount, onEdit }: {
-  wizardData: ReturnType<typeof useBooking>['wizardData'];
-  advanceAmount: number;
-  onEdit: (step: number) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-6">
-      {/* Lead ID Banner */}
-      {wizardData.leadId && (
-        <div className="p-4 rounded-xl bg-primary/10 border border-primary/30 flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-          <div>
-            <p className="font-bold text-[14px] text-primary">Enquiry Saved Successfully!</p>
-            <p className="text-[13px] text-on-surface-variant">Your Lead ID: <strong className="text-primary tracking-wider">{wizardData.leadId}</strong></p>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30">
-        <div className="flex items-center justify-between pb-4 border-b border-outline-variant/20 mb-4">
-          <div className="flex items-center gap-2 text-primary font-bold text-[12px] uppercase tracking-wider">
-            <span className="material-symbols-outlined text-[16px]">verified</span>
-            <span>Stage Booking Specification</span>
-          </div>
-          <button onClick={() => onEdit(1)} className="font-bold text-[12px] text-primary hover:underline flex items-center gap-0.5">
-            Edit <span className="material-symbols-outlined text-[14px]">edit</span>
-          </button>
-        </div>
-
-        {/* Selected Artist */}
-        {wizardData.selectedArtist && (
-          <div className="flex items-center gap-4 pb-4 border-b border-outline-variant/10 mb-4">
-            <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-primary/40 shrink-0">
-              <img src={wizardData.selectedArtist.profile_pic} alt={wizardData.selectedArtist.professional_name} className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <h3 className="font-playfair text-[22px] font-semibold text-on-surface">{wizardData.selectedArtist.professional_name}</h3>
-              <p className="text-[13px] text-on-surface-variant">{wizardData.selectedArtist.category}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Booking Details Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {[
-            { icon: 'celebration', label: 'Event Type', value: wizardData.eventType || '—' },
-            { icon: 'location_on', label: 'City', value: wizardData.city || '—' },
-            { icon: 'calendar_today', label: 'Event Date', value: wizardData.eventDate || '—' },
-            { icon: 'schedule', label: 'Showtime', value: wizardData.eventTime || '—' },
-            { icon: 'mic', label: 'Artist Type', value: wizardData.artistType || '—' },
-            { icon: 'payments', label: 'Budget', value: wizardData.budget?.displayLabel || '—' },
-          ].map(({ icon, label, value }) => (
-            <div key={label} className="p-3 bg-surface-container rounded-lg">
-              <span className="font-bold text-[11px] text-on-surface-variant block uppercase tracking-wider">{label}</span>
-              <span className="font-semibold text-[15px] text-on-surface flex items-center gap-1.5 mt-0.5">
-                <span className="material-symbols-outlined text-[18px] text-primary">{icon}</span>
-                {value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Customer Details */}
-      <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-[14px] text-on-surface uppercase tracking-wider">Contact Details</h3>
-          <button onClick={() => onEdit(6)} className="font-bold text-[12px] text-primary hover:underline flex items-center gap-0.5">
-            Edit <span className="material-symbols-outlined text-[14px]">edit</span>
-          </button>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-[15px]">
-            <span className="material-symbols-outlined text-primary text-[18px]">person</span>
-            <span className="text-on-surface">{wizardData.customerName || '—'}</span>
-          </div>
-          <div className="flex items-center gap-2 text-[15px]">
-            <span className="material-symbols-outlined text-primary text-[18px]">mail</span>
-            <span className="text-on-surface">{wizardData.customerEmail || '—'}</span>
-          </div>
-          <div className="flex items-center gap-2 text-[15px]">
-            <span className="material-symbols-outlined text-primary text-[18px]">phone</span>
-            <span className="text-on-surface">+91 {wizardData.customerPhone || '—'}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Pricing Summary */}
-      <div className="bg-surface-container-low p-6 rounded-xl border border-primary/20">
-        <h3 className="font-bold text-[14px] text-on-surface uppercase tracking-wider mb-4">Pricing Summary</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between text-[15px]">
-            <span className="text-on-surface-variant">Estimated Budget:</span>
-            <span className="font-bold text-on-surface">{wizardData.budget?.displayLabel || '—'}</span>
-          </div>
-          {wizardData.couponCode === 'FIRST10' && (
-            <div className="flex justify-between text-[15px]">
-              <span className="text-on-surface-variant flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px] text-primary">local_offer</span>
-                Coupon Applied (FIRST10):
-              </span>
-              <span className="font-bold text-primary">10% Advance</span>
-            </div>
-          )}
-          <div className="flex justify-between text-[18px] pt-2 border-t border-outline-variant/20">
-            <span className="font-bold text-on-surface">Advance to Pay Now:</span>
-            <span className="font-playfair font-bold text-primary">₹{advanceAmount.toLocaleString('en-IN')}</span>
-          </div>
-          <p className="text-[12px] text-on-surface-variant">Balance payable directly to artist at venue after performance.</p>
-          <p className="text-[12px] text-on-surface-variant">Status: <span className="text-emerald-400 font-bold">Enquiry Saved</span></p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================
-// Step 8: Payment (Placeholder)
-// ============================
-function Step8({ wizardData, advanceAmount }: {
-  wizardData: ReturnType<typeof useBooking>['wizardData'];
-  advanceAmount: number;
-}) {
-  return (
-    <div className="bg-surface-container-low p-6 md:p-8 rounded-xl border border-outline-variant/30 flex flex-col gap-6">
-      <div>
-        <h2 className="font-playfair text-[28px] font-semibold text-on-surface mb-1">Pay Advance</h2>
-        <p className="text-[15px] text-on-surface-variant">Lock your artist by paying the advance amount.</p>
-      </div>
-      <div className="p-6 rounded-xl bg-surface-container border border-primary/20 text-center">
-        <p className="font-bold text-[12px] text-on-surface-variant uppercase tracking-wider mb-2">Advance Amount</p>
-        <p className="font-playfair text-[48px] font-bold text-primary">₹{advanceAmount.toLocaleString('en-IN')}</p>
-        <p className="text-[13px] text-on-surface-variant mt-1">
-          {wizardData.couponCode === 'FIRST10' ? '10% advance (FIRST10 applied)' : '20% advance (standard rate)'}
-        </p>
-        <p className="text-[13px] text-on-surface-variant">Lead ID: <span className="text-primary font-bold">{wizardData.leadId}</span></p>
-      </div>
-      <div className="p-4 rounded-xl bg-surface-container-high border border-outline-variant/20 flex items-center gap-3">
-        <span className="material-symbols-outlined text-secondary text-[22px]">info</span>
-        <p className="text-[14px] text-on-surface-variant">
-          <strong className="text-on-surface">Payment integration coming soon.</strong> Our concierge team will reach out on your WhatsApp to arrange advance payment and confirm your booking.
-        </p>
-      </div>
-      <div className="flex flex-col gap-3">
-        <a
-          href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}?text=Hi, I've submitted a booking enquiry on ArtistManch. My Lead ID is ${wizardData.leadId}. Please help me with the advance payment.`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3.5 px-4 rounded-xl text-on-primary font-bold text-[14px] flex items-center justify-center gap-2 shadow-gold transition-all hover:scale-[1.02]"
-          style={{ background: '#25D366' }}
-        >
-          <span className="material-symbols-outlined text-[20px]">chat</span>
-          Contact Us on WhatsApp
-        </a>
-      </div>
-    </div>
-  );
-}
-
-// ============================
-// Step 9: Confirmation
-// ============================
-function Step9({ wizardData }: { wizardData: ReturnType<typeof useBooking>['wizardData'] }) {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col items-center text-center gap-6 py-8">
-      <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-        <span className="material-symbols-outlined text-primary text-[40px]" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
-      </div>
-      <div>
-        <h2 className="font-playfair text-[36px] font-bold text-on-surface mb-2">
-          Enquiry <span className="text-primary">Submitted!</span>
-        </h2>
-        <p className="text-[18px] text-on-surface-variant max-w-lg">
-          Your booking enquiry has been saved. Our concierge team will match you with the perfect artist and be in touch within 28 minutes.
-        </p>
-      </div>
-      {wizardData.leadId && (
-        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-container border border-primary/20">
-          <span className="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
-          <div className="text-left">
-            <p className="font-bold text-[12px] text-on-surface-variant uppercase tracking-wider">Your Lead ID</p>
-            <p className="font-bold text-[18px] text-primary tracking-wider">{wizardData.leadId}</p>
-          </div>
-        </div>
-      )}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button onClick={() => navigate('/dashboard')} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary font-bold text-[14px] rounded-xl shadow-gold transition-all hover:scale-[1.02]">
-          <span>View My Bookings</span>
-          <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-        </button>
-        <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 px-6 py-3 bg-surface-container text-on-surface font-bold text-[14px] rounded-xl transition-all hover:bg-surface-container-high">
-          <span>Back to Home</span>
-        </button>
       </div>
     </div>
   );
