@@ -1,4 +1,4 @@
-import { WHATSAPP_NUMBER } from '../data/artists';
+// import { WHATSAPP_NUMBER } from '../data/artists';
 
 export default function JoinAsArtistPage() {
   const whatsappMessage = encodeURIComponent(

@@ -1,10 +1,19 @@
 // Artist data types
+
 export interface Artist {
+  // Core artist fields
   id: string;
   slug: string;
   professional_name: string;
   category: string;
   profile_pic: string;
+
+  // Artist card details
+  duration?: string;
+  performance_duration?: string;
+  languages?: string[] | string;
+
+  // Existing artist details
   genres?: string[];
   location?: string;
   rating?: number;
@@ -13,7 +22,17 @@ export interface Artist {
   experience_years?: number;
   tagline?: string;
   verified?: boolean;
+
+  // Fields from your original API response
+  profile_completion_score?: number;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  user_type_label?: string;
+  formatted_created_at?: string;
+  live?: string;
 }
+
 
 // Budget brackets
 export interface BudgetBracket {
