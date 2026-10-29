@@ -1,6 +1,7 @@
 
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/artist-manch-logo-transparent-for-light-bg.png';
 
 const socialLinks = [
   {
@@ -102,24 +103,17 @@ export default function Footer() {
                 aria-label="ArtistManch home"
                 className="inline-flex items-center gap-3"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#c6a15b]/40 bg-[#c6a15b]/10 text-[#e7c879] shadow-[0_0_35px_rgba(198,161,91,0.08)]">
-                  <span
-                    className="material-symbols-outlined text-[27px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    auto_awesome
-                  </span>
-                </span>
-
-                <span className="font-playfair text-2xl font-semibold tracking-wide text-white sm:text-3xl">
-                  Artist<span className="text-[#c6a15b]">Manch</span>
-                </span>
+                <img 
+                  src={logo} 
+                  alt="ArtistManch Logo" 
+                  className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105" 
+                />
               </Link>
 
               <h2 className="mt-10 max-w-md font-playfair text-3xl leading-tight text-white sm:text-4xl lg:text-[2.65rem]">
-                Make every celebration{' '}
+                Har Jashn Ho{' '}
                 <span className="italic text-[#d6b46a]">
-                  unforgettable.
+                  Shaandaar!.
                 </span>
               </h2>
 

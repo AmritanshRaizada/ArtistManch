@@ -5,8 +5,7 @@ export default function LandingPage() {
   return (
     <div className="w-full flex flex-col bg-surface min-h-screen">
       {/* Section 1: Cinematic Hero */}
-      <section className="relative w-full overflow-hidden bg-[#0e0e11] px-4 py-8 sm:py-10 md:px-12 md:py-12 min-h-[calc(100svh-120px)] flex flex-col justify-center">
-        {/* Full-bleed Background Video */}
+<section className="relative w-full overflow-hidden bg-[#0e0e11] px-4 pt-28 pb-8 sm:pt-30 sm:pb-10 md:px-12 md:pt-36 md:pb-12 min-h-[calc(100svh-120px)] flex flex-col justify-center">        {/* Full-bleed Background Video */}
         <video
           autoPlay
           muted
@@ -64,12 +63,12 @@ export default function LandingPage() {
               stars
             </span>
             <span className="font-bold text-[12px] uppercase tracking-[0.2em] text-secondary">
-              Make Every Celebration Unforgettable
+              Har Jashn Ho Shaandaar!
             </span>
           </div>
 
           {/* Main Headline — Clean Festive Offer */}
-          <div className="max-w-4xl mx-auto mb-6 text-center">
+          <div className="max-w-4xl mx-auto mt-4 mb-6 text-center">
             <h1
               className="font-playfair text-[36px] sm:text-[44px] md:text-[60px] font-bold text-on-surface tracking-tight leading-[1.15] mb-5"
               style={{ letterSpacing: '-0.02em' }}

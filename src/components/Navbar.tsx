@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/artist-manch-logo-transparent-for-light-bg.png';
 import { ARTIST_CATEGORIES } from '../data/artists';
 
 export default function Navbar() {
@@ -75,23 +76,11 @@ export default function Navbar() {
             className="flex items-center gap-2 shrink-0 group"
             aria-label="ArtistManch home"
           >
-            <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center shadow-[0_0_16px_rgba(212,175,55,0.2)]">
-              <span
-                className="material-symbols-outlined text-primary text-[22px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                stars
-              </span>
-            </div>
-
-            <div className="flex flex-col">
-              <span className="font-playfair text-[20px] sm:text-[22px] font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
-                ArtistManch
-              </span>
-              <span className="font-jakarta text-[9px] font-bold text-on-surface-variant uppercase tracking-widest hidden sm:block">
-                Grand Stage Prestige
-              </span>
-            </div>
+            <img 
+              src={logo} 
+              alt="ArtistManch Logo" 
+              className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105" 
+            />
           </Link>
 
           <div className="flex-1 min-w-0" />
@@ -457,7 +446,7 @@ export default function Navbar() {
               className="flex shrink-0 items-center"
             >
               <span className="font-bold text-[14px] sm:text-[17px] text-primary tracking-wide px-8">
-                ✨ No need to pay 50% advance! Book your favourite artist with just 20% advance this festive season.
+                ✨ No need to pay 50% advance! Book your favourite artist with just 20%.
               </span>
             </div>
           ))}
