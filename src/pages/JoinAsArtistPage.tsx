@@ -4,7 +4,8 @@ export default function JoinAsArtistPage() {
   const whatsappMessage = encodeURIComponent(
     'Hi, I\'m an artist interested in joining ArtistManch. I would like to know more about the onboarding process.'
   );
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
+  const ARTIST_WHATSAPP_NUMBER = '+918810321546';
+  const whatsappUrl = `https://wa.me/${ARTIST_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   const benefits = [
     { icon: 'trending_up', title: 'Grow Your Bookings', desc: 'Access thousands of event hosts actively searching for your category and style of performance.' },
@@ -89,7 +90,7 @@ export default function JoinAsArtistPage() {
         <div className="max-w-[1320px] mx-auto">
           <div className="text-center mb-12">
             <span className="font-bold text-[12px] uppercase tracking-[0.18em] text-primary block mb-2">Why ArtistManch?</span>
-            <h2 className="font-playfair text-[36px] md:text-[40px] font-semibold text-on-surface" style={{ letterSpacing: '-0.015em' }}>Benefits of Joining Our Roster</h2>
+            <h2 className="font-playfair text-[36px] md:text-[40px] font-semibold text-on-surface" style={{ letterSpacing: '-0.015em' }}>Benefits of Joining Our Team</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {benefits.map(({ icon, title, desc }) => (
@@ -126,7 +127,7 @@ export default function JoinAsArtistPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* Final CTA
       <section className="w-full py-16 px-4 md:px-12 bg-surface">
         <div className="max-w-[1320px] mx-auto">
           <div
@@ -158,7 +159,7 @@ export default function JoinAsArtistPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

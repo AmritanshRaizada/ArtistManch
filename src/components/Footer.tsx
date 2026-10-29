@@ -6,25 +6,24 @@ import logo from '../assets/artist-manch-logo-transparent-for-light-bg.png';
 const socialLinks = [
   {
     label: 'Instagram',
-    href: import.meta.env.VITE_INSTAGRAM_URL as string | undefined,
-    icon: 'photo_camera',
+    href: 'https://www.instagram.com/artist.manch/',
+    icon: 'instagram',
   },
   {
     label: 'Facebook',
-    href: import.meta.env.VITE_FACEBOOK_URL as string | undefined,
-    icon: 'public',
+    href: 'https://www.facebook.com/profile.php?id=61595533253737',
+    icon: 'facebook',
   },
   {
-    label: 'YouTube',
-    href: import.meta.env.VITE_YOUTUBE_URL as string | undefined,
-    icon: 'smart_display',
+    label: 'WhatsApp',
+    href: 'https://wa.me/+917303195782',
+    icon: 'whatsapp',
   },
-];
+] as const;
 
 const linkClass =
   'group inline-flex w-fit items-center gap-2 text-sm text-white/60 transition-colors duration-200 hover:text-[#d9b8ff]';
 
-// Reusable scroll-to-top handler for all footer links.
 function scrollToTop() {
   window.scrollTo({
     top: 0,
@@ -51,23 +50,50 @@ function FooterLink({
   );
 }
 
-// function FooterAnchor({
-//   href,
-//   children,
-// }: {
-//   href: string;
-//   children: ReactNode;
-// }) {
-//   return (
-//     <a href={href} onClick={scrollToTop} className={linkClass}>
-//       <span
-//         className="h-px w-0 shrink-0 bg-[#b779ff] transition-all duration-200 group-hover:w-3"
-//         aria-hidden="true"
-//       />
-//       {children}
-//     </a>
-//   );
-// }
+function SocialIcon({ icon }: { icon: (typeof socialLinks)[number]['icon'] }) {
+  const commonProps = {
+    width: 21,
+    height: 21,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true as const,
+  };
+
+  if (icon === 'instagram') {
+    return (
+      <svg {...commonProps}>
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+
+  if (icon === 'facebook') {
+    return (
+      <svg
+        width="21"
+        height="21"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M13.4 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.5 1.6-1.5h1.7V3.2c-.3 0-1.3-.2-2.5-.2-2.5 0-4.2 1.5-4.2 4.3v2.3H7.2v3.2H10V21h3.4Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...commonProps}>
+      <path d="M20.5 11.8a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.3-4.7a8.5 8.5 0 1 1 16.2-4Z" />
+      <path d="M8.5 7.8c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.5l.8 1.8c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.5.9 1.2 1.6 2.1 2.1.3.2.5.2.7-.1l.8-.9c.2-.2.4-.2.7-.1l1.8.9c.3.1.4.3.4.5 0 .4-.2 1.3-.8 1.8-.6.5-1.3.7-2.1.6-1.1-.2-2.6-.9-4-2.2-1.6-1.4-2.6-3.2-2.7-4.4-.1-.9.4-1.7.8-2.2Z" />
+    </svg>
+  );
+}
 
 export default function Footer() {
   return (
@@ -103,18 +129,16 @@ export default function Footer() {
                 aria-label="ArtistManch home"
                 className="inline-flex items-center gap-3"
               >
-                <img 
-                  src={logo} 
-                  alt="ArtistManch Logo" 
-                  className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105" 
+                <img
+                  src={logo}
+                  alt="ArtistManch Logo"
+                  className="h-10 w-auto object-contain transition-transform hover:scale-105 sm:h-12"
                 />
               </Link>
 
               <h2 className="mt-10 max-w-md font-playfair text-3xl leading-tight text-white sm:text-4xl lg:text-[2.65rem]">
                 Har Jashn Ho{' '}
-                <span className="italic text-[#d6b46a]">
-                  Shaandaar!.
-                </span>
+                <span className="italic text-[#d6b46a]">Shaandaar!.</span>
               </h2>
 
               <p className="mt-4 max-w-sm text-sm leading-6 text-white/55 sm:text-base">
@@ -143,7 +167,6 @@ export default function Footer() {
               </h3>
               <FooterLink to="/browse">Browse Artists</FooterLink>
               <FooterLink to="/booking">Start Booking</FooterLink>
-              {/* <FooterLink to="/">How It Works</FooterLink> */}
             </div>
 
             <div className="flex flex-col items-start gap-4">
@@ -171,6 +194,30 @@ export default function Footer() {
               <FooterLink to="/terms">Terms of Service</FooterLink>
               <FooterLink to="/refund-policy">Refund Policy</FooterLink>
             </div>
+
+            <div className="flex flex-col items-start gap-4">
+              <h3 className="text-sm font-bold tracking-wide text-white">
+                Connect with Us
+              </h3>
+              <a
+                href="https://wa.me/+917303195782"
+                target="_blank"
+                rel="noreferrer"
+                className={linkClass}
+              >
+                <SocialIcon icon="whatsapp" />
+                WhatsApp Us
+              </a>
+              <a
+                href="https://wa.me/+918810321546"
+                target="_blank"
+                rel="noreferrer"
+                className={linkClass}
+              >
+                <span className="material-symbols-outlined text-sm">person</span>
+                For Artists
+              </a>
+            </div>
           </div>
         </div>
 
@@ -185,29 +232,19 @@ export default function Footer() {
               Follow the spotlight
             </span>
 
-            {socialLinks
-              .filter((item) => item.href)
-              .map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={item.label}
-                  title={item.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/65 transition hover:border-[#c6a15b]/50 hover:bg-[#c6a15b]/10 hover:text-[#e7c879]"
-                >
-                  <span className="material-symbols-outlined text-[20px]">
-                    {item.icon}
-                  </span>
-                </a>
-              ))}
-
-            {socialLinks.every((item) => !item.href) && (
-              <span className="text-xs text-white/35">
-                Social links coming soon
-              </span>
-            )}
+            {socialLinks.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={item.label}
+                title={item.label}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/65 transition hover:border-[#c6a15b]/50 hover:bg-[#c6a15b]/10 hover:text-[#e7c879]"
+              >
+                <SocialIcon icon={item.icon} />
+              </a>
+            ))}
           </div>
         </div>
       </div>
