@@ -71,17 +71,17 @@ export default function Navbar() {
 
           {/* ArtistManch Logo: Far Left */}
           <Link
-            to="/"
-            onClick={closeMenus}
-            className="flex items-center gap-2 shrink-0 group"
-            aria-label="ArtistManch home"
-          >
-            <img 
-              src={logo} 
-              alt="ArtistManch Logo" 
-              className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105" 
-            />
-          </Link>
+  to="/"
+  onClick={closeMenus}
+  className="flex items-center gap-2 shrink-0 group"
+  aria-label="ArtistManch home"
+>
+  <img
+    src={logo}
+    alt="ArtistManch Logo"
+    className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
+  />
+</Link>
 
           <div className="flex-1 min-w-0" />
 
