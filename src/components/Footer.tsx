@@ -218,6 +218,21 @@ export default function Footer() {
                 For Artists
               </a>
             </div>
+
+            <div className="col-span-2 flex flex-col items-start gap-4 sm:col-span-1">
+              <h3 className="text-sm font-bold tracking-wide text-white">
+                Our Office
+              </h3>
+              <p className="text-sm leading-6 text-white/60">
+                Mezz & 1st Floor, A-83,
+                <br />
+                Pocket D, Okhla Phase II,
+                <br />
+                Okhla Industrial Estate,
+                <br />
+                New Delhi, Delhi 110020
+              </p>
+            </div>
           </div>
         </div>
 

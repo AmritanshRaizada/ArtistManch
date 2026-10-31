@@ -20,6 +20,15 @@ const contactOptions = [
     href: '/booking',
     action: 'Start an enquiry',
   },
+  {
+    icon: 'location_on',
+    eyebrow: 'VISIT US',
+    title: 'Our office',
+    detail: 'New Delhi, India',
+    description: 'Mezz & 1st Floor, A-83, Pocket D, Okhla Phase II, Okhla Industrial Estate, New Delhi, Delhi 110020',
+    href: 'https://share.google/FHyk0IkZb4AT4LXM9',
+    action: 'View on Maps',
+  },
 ];
 
 const topics = [
@@ -89,9 +98,9 @@ export default function ContactUsPage() {
         </header>
 
         {/* Contact cards */}
-        <section aria-label="Contact options" className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mb-10">
+        <section aria-label="Contact options" className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:mb-10">
           {contactOptions.map((option) => {
-            const isExternal = option.href.startsWith('mailto:');
+            const isExternal = option.href.startsWith('mailto:') || option.href.startsWith('http');
             const content = (
               <>
                 <div className="flex items-start justify-between gap-4">
