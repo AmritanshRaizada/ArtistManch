@@ -272,15 +272,17 @@ export default function ArtistBookingPage() {
       </div>
 
       <div className="relative mx-auto max-w-7xl">
-        <header className="mb-8">
-          <p className="text-center text-[11px] font-bold uppercase tracking-[0.35em] text-[#d6b46a]">ARTISTMANCH / BOOKING STUDIO</p>
-          <h1 className="mt-3 text-center text-3xl font-semibold tracking-tight md:text-5xl">
-            Let’s make your event <span className="bg-gradient-to-r from-[#f5cf65] via-[#f1c0a4] to-[#d99bd7] bg-clip-text text-transparent">unforgettable.</span>
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-center text-sm leading-6 text-white/50">
-            A few details are all we need to get your artist booking started.
-          </p>
-        </header>
+        <header className="mb-8 pt-6">
+  <p className="text-center text-[11px] font-bold uppercase tracking-[0.35em] text-[#d6b46a]">
+    ARTISTMANCH / BOOKING STUDIO
+  </p>
+  <h1 className="mt-3 text-center text-3xl font-semibold tracking-tight md:text-5xl">
+    Let’s make your event <span className="bg-gradient-to-r from-[#f5cf65] via-[#f1c0a4] to-[#d99bd7] bg-clip-text text-transparent">unforgettable.</span>
+  </h1>
+  <p className="mx-auto mt-3 max-w-xl text-center text-sm leading-6 text-white/50">
+    A few details are all we need to get your artist booking started.
+  </p>
+</header>
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.85fr)] xl:gap-8">
           <div className="min-w-0">
