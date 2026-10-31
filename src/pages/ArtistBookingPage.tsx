@@ -428,13 +428,14 @@ export default function ArtistBookingPage() {
                   {eventType === 'Other' && <input required type="text" value={customEventType} onChange={e => setCustomEventType(e.target.value)} placeholder="Tell us your occasion" className={fieldClass} />}
                 </label>
 
-                <label className={labelClass}>Event date <span className="text-[#e7c879]">*</span>
-                  <input required type="date" min={new Date().toISOString().slice(0, 10)} value={eventDate} onChange={e => setEventDate(e.target.value)} className={fieldClass} />
-                </label>
-
-                <label className={labelClass}>Start time <span className="text-white/30">(optional)</span>
-                  <input type="time" value={eventTime} onChange={e => setEventTime(e.target.value)} className={fieldClass} />
-                </label>
+                <div className="md:col-span-2">
+                  <DateTimePicker
+                    eventDate={eventDate}
+                    setEventDate={setEventDate}
+                    eventTime={eventTime}
+                    setEventTime={setEventTime}
+                  />
+                </div>
 
                 <label className={labelClass}>Venue city <span className="text-[#e7c879]">*</span>
                   <select required value={city} onChange={e => { setCity(e.target.value); setCustomCity(''); }} className={fieldClass}>
@@ -575,5 +576,74 @@ export default function ArtistBookingPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+// Reused calendar and showtime picker from BookingWizardPage.
+function DateTimePicker({ eventDate, setEventDate, eventTime, setEventTime }: {
+  eventDate: string; setEventDate: (v: string) => void;
+  eventTime: string; setEventTime: (v: string) => void;
+}) {
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const initial = eventDate ? new Date(`${eventDate}T12:00:00`) : new Date();
+    return new Date(initial.getFullYear(), initial.getMonth(), 1);
+  });
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const selectedDate = eventDate ? new Date(`${eventDate}T12:00:00`) : null;
+  const monthStart = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
+  const mondayOffset = (monthStart.getDay() + 6) % 7;
+  const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate();
+  const calendarCells = Array.from({ length: Math.ceil((mondayOffset + daysInMonth) / 7) * 7 }, (_, index) => {
+    const day = index - mondayOffset + 1;
+    return day < 1 || day > daysInMonth ? null : new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day);
+  });
+  const displayDate = selectedDate ? selectedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Choose your event date';
+  const parsedTime = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(eventTime);
+  const hour24 = parsedTime ? Number(parsedTime[1]) : 19;
+  const minuteValue = parsedTime ? parsedTime[2] : '00';
+  const period = hour24 >= 12 ? 'PM' : 'AM';
+  const hour12 = hour24 % 12 || 12;
+  const displayTime = parsedTime ? `${hour12}:${minuteValue} ${period}` : 'Choose showtime';
+  const setTimeParts = (hour: number, minute: string, meridiem: string) => {
+    const h24 = meridiem === 'PM' ? (hour % 12) + 12 : hour % 12;
+    setEventTime(`${String(h24).padStart(2, '0')}:${minute}`);
+  };
+
+  return (
+    <div className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5 md:p-7">
+      <div className="mb-6"><h2 className="font-playfair text-[28px] font-semibold text-on-surface md:text-[30px]">Event Date & Time</h2><p className="mt-1 text-[15px] text-on-surface-variant">When is your celebration?</p></div>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="relative min-w-0">
+          <label className="mb-2 block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="event-date-trigger">Event date <span className="text-primary">*</span></label>
+          <button id="event-date-trigger" type="button" aria-haspopup="dialog" aria-expanded={calendarOpen} onClick={() => { setCalendarOpen(v => !v); setTimeOpen(false); }} className={`group flex min-h-[76px] w-full items-center gap-4 rounded-xl border bg-surface-container-high px-4 py-4 text-left transition-all hover:border-primary/60 hover:bg-surface-container ${calendarOpen ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/30'}`}>
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${eventDate ? 'border-primary/40 bg-primary/15 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant group-hover:text-primary'}`}><span className="material-symbols-outlined text-[23px]">calendar_month</span></span>
+            <span className="min-w-0 flex-1"><span className={`block truncate text-[15px] font-semibold ${eventDate ? 'text-on-surface' : 'text-on-surface-variant'}`}>{displayDate}</span><span className="mt-1 block text-[11px] text-on-surface-variant">Select a date for your event</span></span>
+            <span className={`material-symbols-outlined text-[20px] transition-transform ${calendarOpen ? 'rotate-180 text-primary' : 'text-on-surface-variant'}`}>expand_more</span>
+          </button>
+          {calendarOpen && <div role="dialog" aria-label="Choose event date" className="absolute left-0 top-full z-40 mt-3 w-full min-w-[290px] rounded-2xl border border-primary/25 bg-[#19171d] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.55)] sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Choose a date</p><h3 className="mt-1 font-playfair text-[21px] font-semibold text-[#f7f1e8]">{visibleMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</h3></div><div className="flex gap-1"><button type="button" aria-label="Previous month" disabled={visibleMonth.getFullYear() === today.getFullYear() && visibleMonth.getMonth() === today.getMonth()} onClick={() => setVisibleMonth(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1))} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#e9dfd0] transition hover:border-primary/50 hover:text-primary disabled:opacity-25"><span className="material-symbols-outlined">chevron_left</span></button><button type="button" aria-label="Next month" onClick={() => setVisibleMonth(new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1))} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#e9dfd0] transition hover:border-primary/50 hover:text-primary"><span className="material-symbols-outlined">chevron_right</span></button></div></div>
+            <div className="mb-2 grid grid-cols-7 gap-1 text-center">{['M','T','W','T','F','S','S'].map((day, i) => <span key={`${day}-${i}`} className="py-2 text-[11px] font-bold text-[#9f968b]">{day}</span>)}</div>
+            <div className="grid grid-cols-7 gap-1">{calendarCells.map((date, i) => { if (!date) return <span key={`blank-${i}`} className="aspect-square" />; const key = dateKey(date); const disabled = date < today; const selected = eventDate === key; const isToday = key === dateKey(today); return <button key={key} type="button" disabled={disabled} onClick={() => { setEventDate(key); setCalendarOpen(false); }} className={`relative aspect-square rounded-lg text-[13px] font-semibold transition-all disabled:cursor-not-allowed disabled:text-white/20 ${selected ? 'bg-primary text-[#211a0b] shadow-[0_0_0_2px_rgba(242,202,80,0.22)]' : disabled ? '' : 'text-[#f0e9df] hover:bg-primary/15 hover:text-primary'} ${isToday && !selected ? 'border border-primary/60' : ''}`}>{date.getDate()}{isToday && !selected && <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />}</button>; })}</div>
+            <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3"><button type="button" onClick={() => setEventDate('')} className="text-[12px] font-semibold text-[#bcb1a3] hover:text-white">Clear date</button><button type="button" onClick={() => { setVisibleMonth(new Date(today.getFullYear(), today.getMonth(), 1)); setEventDate(dateKey(today)); setCalendarOpen(false); }} className="rounded-lg px-3 py-2 text-[12px] font-bold text-primary hover:bg-primary/10">Today</button></div>
+          </div>}
+        </div>
+        <div className="relative min-w-0">
+          <label className="mb-2 block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant" htmlFor="event-time-trigger">Showtime <span className="font-medium normal-case tracking-normal text-on-surface-variant/70"></span></label>
+          <button id="event-time-trigger" type="button" aria-haspopup="dialog" aria-expanded={timeOpen} onClick={() => { setTimeOpen(v => !v); setCalendarOpen(false); }} className={`group flex min-h-[76px] w-full items-center gap-4 rounded-xl border bg-surface-container-high px-4 py-4 text-left transition-all hover:border-primary/60 hover:bg-surface-container ${timeOpen ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/30'}`}>
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${eventTime ? 'border-primary/40 bg-primary/15 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant group-hover:text-primary'}`}><span className="material-symbols-outlined text-[23px]">schedule</span></span><span className="min-w-0 flex-1"><span className={`block text-[15px] font-semibold ${eventTime ? 'text-on-surface' : 'text-on-surface-variant'}`}>{displayTime}</span><span className="mt-1 block text-[11px] text-on-surface-variant">Choose an approximate start time</span></span><span className={`material-symbols-outlined text-[20px] transition-transform ${timeOpen ? 'rotate-180 text-primary' : 'text-on-surface-variant'}`}>expand_more</span>
+          </button>
+          {timeOpen && <div role="dialog" aria-label="Choose showtime" className="absolute left-0 top-full z-40 mt-3 w-full min-w-[290px] rounded-2xl border border-primary/25 bg-[#19171d] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.55)] sm:p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Set showtime</p><div className="my-4 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-center"><span className="font-playfair text-[32px] font-semibold tracking-wide text-[#f7f1e8]">{hour12}:{minuteValue} <span className="text-primary">{period}</span></span><p className="mt-1 text-[11px] text-[#a99f92]">Approximate performance start</p></div>
+            <div className="grid grid-cols-3 gap-3"><div><label htmlFor="time-hour" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#a99f92]">Hour</label><select id="time-hour" value={hour12} onChange={e => setTimeParts(Number(e.target.value), minuteValue, period)} className="w-full rounded-xl border border-white/10 bg-[#242129] px-3 py-3 text-[15px] font-semibold text-[#f7f1e8] outline-none focus:border-primary">{Array.from({ length: 12 }, (_, i) => i + 1).map(hour => <option key={hour} value={hour}>{String(hour).padStart(2, '0')}</option>)}</select></div><div><label htmlFor="time-minute" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#a99f92]">Minute</label><select id="time-minute" value={minuteValue} onChange={e => setTimeParts(hour12, e.target.value, period)} className="w-full rounded-xl border border-white/10 bg-[#242129] px-3 py-3 text-[15px] font-semibold text-[#f7f1e8] outline-none focus:border-primary">{['00','15','30','45'].map(minute => <option key={minute} value={minute}>{minute}</option>)}</select></div><div><label htmlFor="time-period" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#a99f92]">Period</label><select id="time-period" value={period} onChange={e => setTimeParts(hour12, minuteValue, e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#242129] px-3 py-3 text-[15px] font-semibold text-[#f7f1e8] outline-none focus:border-primary"><option value="AM">AM</option><option value="PM">PM</option></select></div></div>
+            <div className="mt-4 flex gap-2"><button type="button" onClick={() => { setEventTime(''); setTimeOpen(false); }} className="flex-1 rounded-lg border border-white/10 px-3 py-2.5 text-[12px] font-semibold text-[#bcb1a3] hover:text-white">Clear</button><button type="button" onClick={() => { setTimeParts(hour12, minuteValue, period); setTimeOpen(false); }} className="flex-1 rounded-lg bg-primary px-3 py-2.5 text-[12px] font-bold text-[#211a0b] hover:brightness-110">Confirm time</button></div>
+          </div>}
+        </div>
+      </div>
+      <div className="mt-5 flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/5 p-4"><span className="material-symbols-outlined mt-0.5 shrink-0 text-[20px] text-primary">info</span><p className="text-[13px] leading-5 text-on-surface-variant">Artists typically arrive 2 hours before showtime for soundcheck. We'll coordinate the exact schedule after your booking is confirmed.</p></div>
+    </div>
   );
 }
