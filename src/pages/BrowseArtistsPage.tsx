@@ -78,7 +78,7 @@ export default function BrowseArtistsPage() {
     } as unknown as Artist;
 
     setSelectedArtist(bookingArtist);
-    navigate('/booking');
+navigate('/artist-booking');
   }
 
   return (

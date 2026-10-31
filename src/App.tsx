@@ -10,11 +10,13 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import BrowseArtistsPage from './pages/BrowseArtistsPage';
 import BookingWizardPage from './pages/BookingWizardPage';
+
 import JoinAsArtistPage from './pages/JoinAsArtistPage';
 import DashboardPage from './pages/DashboardPage';
 import EventQuoteForm from './pages/PostYourRequirement';
 import ArtistFAQPage from './pages/ArtistFAQPage.tsx';
 import ContactUsPage from './pages/ContactUsPage';
+import ArtistBookingPage from './pages/ArtistBookingPage';
 
 
 
@@ -32,10 +34,12 @@ export default function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/browse" element={<BrowseArtistsPage />} />
                 <Route path="/booking" element={<BookingWizardPage />} />
+                <Route path="/artist-booking" element={<ArtistBookingPage />} />
                 <Route path="/join" element={<JoinAsArtistPage />} />
                 <Route path="/post-requirement" element={<EventQuoteForm />} />
                 <Route path="/artist-faq" element={<ArtistFAQPage />} />
                 <Route path="/contact" element={<ContactUsPage />} />
+
                 <Route
                   path="/dashboard"
                   element={
