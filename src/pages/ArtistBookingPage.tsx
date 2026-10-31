@@ -271,7 +271,7 @@ export default function ArtistBookingPage() {
         <div className="absolute -right-40 top-72 h-96 w-96 rounded-full bg-amber-500/10 blur-[130px]" />
       </div>
 
-      <div className="relative mx-auto max-w-5xl">
+      <div className="relative mx-auto max-w-7xl">
         <header className="mb-8">
           <p className="text-center text-[11px] font-bold uppercase tracking-[0.35em] text-[#d6b46a]">ARTISTMANCH / BOOKING STUDIO</p>
           <h1 className="mt-3 text-center text-3xl font-semibold tracking-tight md:text-5xl">
@@ -282,103 +282,10 @@ export default function ArtistBookingPage() {
           </p>
         </header>
 
-        {/* Selected artist */}
-        <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5 backdrop-blur-xl md:p-6">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d6b46a]/25 bg-[#d6b46a]/10 text-[#e7c879]">
-                <span className="material-symbols-outlined text-2xl">artist</span>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">You’re booking</p>
-                <h2 className="mt-1 break-words text-xl font-semibold tracking-tight md:text-2xl">{artist.professional_name}</h2>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/50">
-                  <span className="rounded-full border border-[#d6b46a]/30 bg-[#d6b46a]/10 px-2.5 py-1 text-[#e7c879]">{artist.category}</span>
-                  <span>{artistLanguages}</span>
-                  <span className="text-white/20">•</span>
-                  <span>{artistDuration}</span>
-                </div>
-              </div>
-            </div>
-            <button type="button" onClick={() => navigate('/browse')} className="self-start rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 transition hover:border-[#d6b46a]/50 hover:text-[#e7c879] sm:self-center">
-              Change artist ↗
-            </button>
-          </div>
-        </section>
-
-        {/* Budget control sits above the three-step flow */}
-        <section className="mb-5 rounded-2xl border border-[#d6b46a]/25 bg-gradient-to-br from-[#211a29] via-[#17131f] to-[#111019] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.22)] md:p-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#d6b46a]">
-                <span className="material-symbols-outlined text-base">payments</span>
-                Set your budget
-              </div>
-              <p className="mt-1 text-xs text-white/45">What are you comfortable investing in this performance?</p>
-            </div>
-            <div className="sm:text-right">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">Your budget</p>
-              <p className="mt-1 text-2xl font-semibold tracking-tight text-[#f5cf65] md:text-3xl">{formatINR(budget)}</p>
-            </div>
-          </div>
-          <div className="mt-5">
-            <input
-              aria-label="Booking budget slider"
-              type="range"
-              min={0}
-              max={BUDGET_MILESTONES.length - 1}
-              step={1}
-              value={getBudgetMilestoneIndex(budget)}
-              onChange={e => updateBudgetFromSlider(Number(e.target.value))}
-              className="h-8 w-full cursor-pointer touch-pan-x accent-[#e8bd62]"
-            />
-            <div className="mt-3 grid grid-cols-4 gap-2 text-center sm:grid-cols-8 sm:gap-1">
-              {BUDGET_MILESTONE_LABELS.map((label, index) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => updateBudgetFromSlider(index)}
-                  aria-label={`Set budget to ${formatINR(BUDGET_MILESTONES[index])}`}
-                  className={`min-h-9 rounded-lg px-1 py-2 text-[10px] font-semibold transition sm:min-h-0 sm:rounded-md sm:py-1 sm:text-[10px] ${
-                    getBudgetMilestoneIndex(budget) === index
-                      ? 'bg-[#d6b46a]/15 text-[#f5cf65]'
-                      : 'text-white/40 hover:text-white/75'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <label className="text-xs text-white/55" htmlFor="custom-budget">Or enter a custom amount</label>
-            <div className="relative sm:w-64">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#d6b46a]">₹</span>
-              <input
-                id="custom-budget"
-                type="number"
-                min={MIN_BUDGET}
-                max={MAX_BUDGET}
-                step="1000"
-                value={budgetText}
-                onChange={e => updateBudgetFromInput(e.target.value)}
-                onBlur={() => {
-                  const parsed = parseBudget(budgetText);
-                  if (parsed >= MIN_BUDGET && parsed <= MAX_BUDGET) {
-                    setBudget(parsed);
-                    setBudgetText(String(parsed));
-                  }
-                }}
-                className="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-9 pr-4 text-sm text-white outline-none transition focus:border-[#d6b46a]"
-                placeholder="Enter amount"
-              />
-            </div>
-          </div>
-          <p className="mt-2 text-[10px] text-white/35">Budget range: ₹10,000 – ₹10 crore. This is an indicative budget, not a payment.</p>
-        </section>
-
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.85fr)] xl:gap-8">
+          <div className="min-w-0">
         {/* Step progress */}
-        <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.025] p-4 md:p-5">
+        <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.025] p-3.5 md:p-4">
           <div className="flex items-center justify-between gap-2">
             {steps.map((step, index) => (
               <div key={step.number} className="flex min-w-0 flex-1 items-center">
@@ -574,6 +481,106 @@ export default function ArtistBookingPage() {
             </div>
           </div>
         </form>
+          </div>
+
+          <aside className="min-w-0 space-y-5 lg:sticky lg:top-28">
+        {/* Selected artist */}
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-4 backdrop-blur-xl md:p-5">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d6b46a]/25 bg-[#d6b46a]/10 text-[#e7c879]">
+                <span className="material-symbols-outlined text-2xl">artist</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">You’re booking</p>
+                <h2 className="mt-1 break-words text-xl font-semibold tracking-tight md:text-2xl">{artist.professional_name}</h2>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/50">
+                  <span className="rounded-full border border-[#d6b46a]/30 bg-[#d6b46a]/10 px-2.5 py-1 text-[#e7c879]">{artist.category}</span>
+                  <span>{artistLanguages}</span>
+                  <span className="text-white/20">•</span>
+                  <span>{artistDuration}</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" onClick={() => navigate('/browse')} className="self-start rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 transition hover:border-[#d6b46a]/50 hover:text-[#e7c879] sm:self-center">
+              Change artist ↗
+            </button>
+          </div>
+        </section>
+
+        {/* Budget control sits above the three-step flow */}
+        <section className="rounded-2xl border border-[#d6b46a]/25 bg-gradient-to-br from-[#211a29] via-[#17131f] to-[#111019] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] md:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#d6b46a]">
+                <span className="material-symbols-outlined text-base">payments</span>
+                Set your budget
+              </div>
+              <p className="mt-1 text-xs text-white/45">What are you comfortable investing in this performance?</p>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">Your budget</p>
+              <p className="mt-1 text-2xl font-semibold tracking-tight text-[#f5cf65] md:text-3xl">{formatINR(budget)}</p>
+            </div>
+          </div>
+          <div className="mt-5">
+            <input
+              aria-label="Booking budget slider"
+              type="range"
+              min={0}
+              max={BUDGET_MILESTONES.length - 1}
+              step={1}
+              value={getBudgetMilestoneIndex(budget)}
+              onChange={e => updateBudgetFromSlider(Number(e.target.value))}
+              className="h-7 w-full cursor-pointer touch-pan-x accent-[#e8bd62]"
+            />
+            <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
+              {BUDGET_MILESTONE_LABELS.map((label, index) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => updateBudgetFromSlider(index)}
+                  aria-label={`Set budget to ${formatINR(BUDGET_MILESTONES[index])}`}
+                  className={`min-h-9 rounded-lg px-1 py-2 text-[10px] font-semibold transition sm:min-h-0 sm:rounded-md sm:py-1 sm:text-[10px] ${
+                    getBudgetMilestoneIndex(budget) === index
+                      ? 'bg-[#d6b46a]/15 text-[#f5cf65]'
+                      : 'text-white/40 hover:text-white/75'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col gap-2">
+            <label className="text-xs text-white/55" htmlFor="custom-budget">Or enter a custom amount</label>
+            <div className="relative w-full">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#d6b46a]">₹</span>
+              <input
+                id="custom-budget"
+                type="number"
+                min={MIN_BUDGET}
+                max={MAX_BUDGET}
+                step="1000"
+                value={budgetText}
+                onChange={e => updateBudgetFromInput(e.target.value)}
+                onBlur={() => {
+                  const parsed = parseBudget(budgetText);
+                  if (parsed >= MIN_BUDGET && parsed <= MAX_BUDGET) {
+                    setBudget(parsed);
+                    setBudgetText(String(parsed));
+                  }
+                }}
+                className="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-9 pr-4 text-sm text-white outline-none transition focus:border-[#d6b46a]"
+                placeholder="Enter amount"
+              />
+            </div>
+          </div>
+          <p className="mt-2 text-[10px] text-white/35">Budget range: ₹10,000 – ₹10 crore. This is an indicative budget, not a payment.</p>
+        </section>
+
+          </aside>
+        </div>
       </div>
     </main>
   );
