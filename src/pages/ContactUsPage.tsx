@@ -17,7 +17,7 @@ const contactOptions = [
     title: 'Need help with a booking?',
     detail: 'We’re here to help',
     description: 'Share your event details and we’ll help you find the right next step.',
-    href: '/booking',
+    href: 'https://wa.me/917303195782?text=Hello%20ArtistManch%2C%20I%20would%20like%20to%20make%20an%20enquiry.',
     action: 'Start an enquiry',
   },
   {
@@ -273,9 +273,9 @@ export default function ContactUsPage() {
                 <Link to="/artist-faq" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })} className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm text-[#c9bfd3] transition hover:bg-white/[0.04] hover:text-[#e6c978]">
                   Artist FAQs <Icon name="arrow_outward" className="text-[17px]" />
                 </Link>
-                <Link to="/booking" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })} className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm text-[#c9bfd3] transition hover:bg-white/[0.04] hover:text-[#e6c978]">
+                <a href="https://wa.me/917303195782?text=Hello%20ArtistManch%2C%20I%20would%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm text-[#c9bfd3] transition hover:bg-white/[0.04] hover:text-[#e6c978]">
                   Start a booking enquiry <Icon name="arrow_outward" className="text-[17px]" />
-                </Link>
+                </a>
                 <Link to="/join" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })} className="group flex items-center justify-between rounded-xl px-3 py-3 text-sm text-[#c9bfd3] transition hover:bg-white/[0.04] hover:text-[#e6c978]">
                   Join as an artist <Icon name="arrow_outward" className="text-[17px]" />
                 </Link>

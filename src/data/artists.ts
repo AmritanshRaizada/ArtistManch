@@ -1,6 +1,5 @@
 
-import type { Artist, BudgetBracket } from '../types';
-
+import type { BudgetBracket } from '../types';
 export const ARTIST_CATEGORIES = [
   'All Categories',
   'Celebrity Appearance',
