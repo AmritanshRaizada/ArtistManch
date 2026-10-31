@@ -199,4 +199,31 @@
       transform: none;
     }
   }
+
+  /* Wavy Multi-colored Tagline */
+  .wavy-tagline {
+    display: inline-block;
+    background: linear-gradient(
+      to right,
+      #d4af37,
+      #f2ca50,
+      #9b5de5,
+      #d4af37
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: wavy-move 3s ease-in-out infinite, shine 3s linear infinite;
+    font-weight: 800;
+  }
+
+  @keyframes wavy-move {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  @keyframes shine {
+    to { background-position: 200% center; }
+  }
 }

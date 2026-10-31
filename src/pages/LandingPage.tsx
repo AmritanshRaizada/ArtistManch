@@ -62,7 +62,7 @@ export default function LandingPage() {
             >
               stars
             </span>
-            <span className="font-bold text-[12px] uppercase tracking-[0.2em] text-secondary">
+            <span className="font-bold text-[12px] uppercase tracking-[0.2em] wavy-tagline">
               Har Jashn Ho Shaandaar!
             </span>
           </div>
@@ -103,7 +103,8 @@ export default function LandingPage() {
 
           {/* Supporting Copy */}
           <p className="text-[18px] md:text-[20px] text-on-surface-variant max-w-2xl mx-auto mb-12 leading-[28px] drop-shadow">
-            Bring the wow to every celebration with verified live singers, soulful Sufi artists, and show-stopping performers—matched to your vibe, venue, and budget. From dream weddings and private parties to corporate events, ArtistManch helps you book the perfect artist and turn special moments into unforgettable memories.
+            <span className="wavy-tagline block mb-2">Har Jashn Ho Shaandaar!</span>
+            ArtistManch brings together exceptional Live Singers, Soulful Sufi Artists, and captivating Performers to elevate every occasion. From Grand Weddings and Private Soirées to distinguished Corporate Celebrations, discover the talent that transforms your event into an experience remembered long after the final applause.
           </p>
 
           {/* CTA Buttons */}
