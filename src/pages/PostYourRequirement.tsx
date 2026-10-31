@@ -1,4 +1,3 @@
-
 import { useState, type FormEvent } from "react";
 import {
   addDoc,
@@ -6,10 +5,12 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { ARTIST_CATEGORIES } from "../data/artists";
 
 type EventQuoteFormData = {
-  category: string;
-  otherCategory: string;
+  artistCategory: string;
+  otherArtistCategory: string;
+  preferredArtist: string;
   eventType: string;
   otherEventType: string;
   name: string;
@@ -24,8 +25,9 @@ type EventQuoteFormData = {
 };
 
 const initialForm: EventQuoteFormData = {
-  category: "",
-  otherCategory: "",
+  artistCategory: "",
+  otherArtistCategory: "",
+  preferredArtist: "",
   eventType: "",
   otherEventType: "",
   name: "",
@@ -38,15 +40,6 @@ const initialForm: EventQuoteFormData = {
   mobile: "",
   message: "",
 };
-
-const categories = [
-  "Music",
-  "Corporate",
-  "Wedding",
-  "Private Party",
-  "College Fest",
-  "Other",
-];
 
 const eventTypes = [
   "Concert",
@@ -89,6 +82,7 @@ function getTodayLocalDate() {
 export default function EventQuoteForm() {
   const [form, setForm] =
     useState<EventQuoteFormData>(initialForm);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -133,34 +127,73 @@ export default function EventQuoteForm() {
       return;
     }
 
+    if (
+      form.artistCategory === "Other" &&
+      !form.otherArtistCategory.trim()
+    ) {
+      setErrorMessage(
+        "Please specify the artist category."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage("");
 
     try {
+      const selectedArtistCategory =
+        form.artistCategory === "Other"
+          ? form.otherArtistCategory.trim()
+          : form.artistCategory.trim();
+
       await addDoc(collection(db, "PYR queries"), {
-        category:
-          form.category === "Other"
-            ? form.otherCategory.trim()
-            : form.category.trim(),
-        categorySelection: form.category,
+        // Category fields
+        // Keep `category` for compatibility with existing records.
+        category: selectedArtistCategory,
+        categorySelection: form.artistCategory,
+
+        artistCategory: selectedArtistCategory,
+        artistCategorySelection: form.artistCategory,
+
+        otherArtistCategory:
+          form.artistCategory === "Other"
+            ? form.otherArtistCategory.trim()
+            : null,
+
+        // Preferred artist
+        preferredArtist:
+          form.preferredArtist.trim() || null,
+
+        // Event type
         eventType:
           form.eventType === "Other"
             ? form.otherEventType.trim()
             : form.eventType.trim(),
+
         eventTypeSelection: form.eventType,
+
+        // Event details
         name: form.name.trim(),
         eventDate: form.eventDate,
+
         venueCity:
           form.venueCity === "Other"
             ? form.otherVenueCity.trim()
             : form.venueCity.trim(),
+
         venueCitySelection: form.venueCity,
+
         budget: form.budget.trim(),
         attendees: form.attendees.trim(),
+
+        // Contact details
         email: form.email.trim().toLowerCase(),
         mobile,
+
+        // Additional requirements
         message: form.message.trim(),
 
+        // Metadata
         status: "new",
         source: "event_requirements_form",
         createdAt: serverTimestamp(),
@@ -168,6 +201,7 @@ export default function EventQuoteForm() {
 
       setSubmitted(true);
       setForm(initialForm);
+
     } catch (error) {
       console.error(
         "Error saving event enquiry to PYR queries:",
@@ -177,6 +211,7 @@ export default function EventQuoteForm() {
       setErrorMessage(
         "We couldn't submit your enquiry. Please try again."
       );
+
     } finally {
       setIsSubmitting(false);
     }
@@ -184,25 +219,27 @@ export default function EventQuoteForm() {
 
   return (
     <section className="relative isolate overflow-hidden bg-[#09070f] px-4 py-16 text-white sm:px-6 md:py-24">
+
       {/* Ambient background */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-32 top-10 -z-10 h-80 w-80 rounded-full bg-purple-700/20 blur-[100px]"
       />
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-32 bottom-0 -z-10 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]"
       />
 
       <div className="mx-auto max-w-5xl">
+
         <div className="mx-auto mb-10 max-w-2xl text-center">
-          <span className="mb-4 inline-flex ">
-            
-          </span>
+
+          <span className="mb-4 inline-flex"></span>
 
           <h2 className="font-playfair text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl">
             Fill Requirements for Your{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500">
+            <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
               Event
             </span>
           </h2>
@@ -210,11 +247,15 @@ export default function EventQuoteForm() {
         </div>
 
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-purple-950/30 backdrop-blur-xl">
+
           <div className="h-1 w-full bg-gradient-to-r from-purple-600 via-amber-300 to-purple-600" />
 
           {submitted ? (
+
             <div className="px-6 py-16 text-center sm:px-10">
+
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10">
+
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -229,6 +270,7 @@ export default function EventQuoteForm() {
                     strokeLinejoin="round"
                   />
                 </svg>
+
               </div>
 
               <h3 className="font-playfair text-2xl font-semibold sm:text-3xl">
@@ -250,50 +292,70 @@ export default function EventQuoteForm() {
               >
                 Submit Another Enquiry
               </button>
+
             </div>
+
           ) : (
+
             <form
               onSubmit={handleSubmit}
               className="space-y-8 p-5 sm:p-8 md:p-10"
             >
+
               {/* Event details */}
               <div>
+
                 <div className="mb-5 flex items-center gap-3">
+
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-purple-400/20 bg-purple-500/10 text-sm font-semibold text-purple-200">
                     01
                   </span>
+
                   <div>
                     <h3 className="font-playfair text-xl font-semibold">
                       Event Details
                     </h3>
+
                     <p className="mt-1 text-xs text-white/45">
                       Tell us about the occasion.
                     </p>
                   </div>
+
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                  {/* Artist Category */}
                   <div>
+
                     <label
-                      htmlFor="category"
+                      htmlFor="artistCategory"
                       className={labelClass}
                     >
-                      Event Category *
+                      Artist Category *
                     </label>
+
                     <select
-                      id="category"
-                      name="category"
+                      id="artistCategory"
+                      name="artistCategory"
                       required
-                      value={form.category}
+                      value={form.artistCategory}
                       onChange={(e) =>
-                        updateField("category", e.target.value)
+                        updateField("artistCategory", e.target.value)
                       }
                       className={fieldClass}
                     >
+
                       <option value="" className="bg-[#15111f]">
-                        Select category
+                        Select artist category
                       </option>
-                      {categories.map((category) => (
+
+                      {ARTIST_CATEGORIES.filter(
+                        (category) =>
+                          category !== "All Categories" &&
+                          category !== "Other"
+                      ).map((category) => (
+
                         <option
                           key={category}
                           value={category}
@@ -301,35 +363,63 @@ export default function EventQuoteForm() {
                         >
                           {category}
                         </option>
+
                       ))}
+
+                      <option
+                        value="Other"
+                        className="bg-[#15111f]"
+                      >
+                        Other
+                      </option>
+
                     </select>
-                    {form.category === "Other" && (
+
+                    {/* Custom Artist Category */}
+                    {form.artistCategory === "Other" && (
+
                       <div className="mt-3">
-                        <label htmlFor="otherCategory" className={labelClass}>
-                          Please specify category *
+
+                        <label
+                          htmlFor="otherArtistCategory"
+                          className={labelClass}
+                        >
+                          Please specify artist category *
                         </label>
+
                         <input
-                          id="otherCategory"
-                          name="otherCategory"
+                          id="otherArtistCategory"
+                          name="otherArtistCategory"
                           type="text"
                           required
                           maxLength={100}
-                          placeholder="Enter your event category"
-                          value={form.otherCategory}
-                          onChange={(e) => updateField("otherCategory", e.target.value)}
+                          placeholder="Enter the artist category"
+                          value={form.otherArtistCategory}
+                          onChange={(e) =>
+                            updateField(
+                              "otherArtistCategory",
+                              e.target.value
+                            )
+                          }
                           className={fieldClass}
                         />
+
                       </div>
+
                     )}
+
                   </div>
 
+                  {/* Event Type */}
                   <div>
+
                     <label
                       htmlFor="eventType"
                       className={labelClass}
                     >
                       Event Type *
                     </label>
+
                     <select
                       id="eventType"
                       name="eventType"
@@ -340,10 +430,13 @@ export default function EventQuoteForm() {
                       }
                       className={fieldClass}
                     >
+
                       <option value="" className="bg-[#15111f]">
                         Select event type
                       </option>
+
                       {eventTypes.map((type) => (
+
                         <option
                           key={type}
                           value={type}
@@ -351,13 +444,22 @@ export default function EventQuoteForm() {
                         >
                           {type}
                         </option>
+
                       ))}
+
                     </select>
+
                     {form.eventType === "Other" && (
+
                       <div className="mt-3">
-                        <label htmlFor="otherEventType" className={labelClass}>
+
+                        <label
+                          htmlFor="otherEventType"
+                          className={labelClass}
+                        >
                           Please specify event type *
                         </label>
+
                         <input
                           id="otherEventType"
                           name="otherEventType"
@@ -366,20 +468,59 @@ export default function EventQuoteForm() {
                           maxLength={100}
                           placeholder="Enter your event type"
                           value={form.otherEventType}
-                          onChange={(e) => updateField("otherEventType", e.target.value)}
+                          onChange={(e) =>
+                            updateField(
+                              "otherEventType",
+                              e.target.value
+                            )
+                          }
                           className={fieldClass}
                         />
+
                       </div>
+
                     )}
+
                   </div>
 
+                  {/* Preferred Artist */}
                   <div>
+
+                    <label
+                      htmlFor="preferredArtist"
+                      className={labelClass}
+                    >
+                      Preferred Artist{" "}
+                      <span className="text-white/40">
+                        (Optional)
+                      </span>
+                    </label>
+
+                    <input
+                      id="preferredArtist"
+                      name="preferredArtist"
+                      type="text"
+                      maxLength={150}
+                      placeholder="Enter an artist name, if you have one in mind"
+                      value={form.preferredArtist}
+                      onChange={(e) =>
+                        updateField("preferredArtist", e.target.value)
+                      }
+                      className={fieldClass}
+                    />
+
+                  </div>
+
+                  {/* Event Date */}
+                  <div>
+
                     <label
                       htmlFor="eventDate"
                       className={labelClass}
                     >
                       Event Date *
                     </label>
+
                     <input
                       id="eventDate"
                       name="eventDate"
@@ -392,15 +533,19 @@ export default function EventQuoteForm() {
                       }
                       className={`${fieldClass} [color-scheme:dark]`}
                     />
+
                   </div>
 
+                  {/* Venue City */}
                   <div>
+
                     <label
                       htmlFor="venueCity"
                       className={labelClass}
                     >
                       Venue City *
                     </label>
+
                     <select
                       id="venueCity"
                       name="venueCity"
@@ -411,10 +556,13 @@ export default function EventQuoteForm() {
                       }
                       className={fieldClass}
                     >
+
                       <option value="" className="bg-[#15111f]">
                         Select city
                       </option>
+
                       {cities.map((city) => (
+
                         <option
                           key={city}
                           value={city}
@@ -422,13 +570,22 @@ export default function EventQuoteForm() {
                         >
                           {city}
                         </option>
+
                       ))}
+
                     </select>
+
                     {form.venueCity === "Other" && (
+
                       <div className="mt-3">
-                        <label htmlFor="otherVenueCity" className={labelClass}>
+
+                        <label
+                          htmlFor="otherVenueCity"
+                          className={labelClass}
+                        >
                           Please specify city *
                         </label>
+
                         <input
                           id="otherVenueCity"
                           name="otherVenueCity"
@@ -437,20 +594,31 @@ export default function EventQuoteForm() {
                           maxLength={100}
                           placeholder="Enter your city"
                           value={form.otherVenueCity}
-                          onChange={(e) => updateField("otherVenueCity", e.target.value)}
+                          onChange={(e) =>
+                            updateField(
+                              "otherVenueCity",
+                              e.target.value
+                            )
+                          }
                           className={fieldClass}
                         />
+
                       </div>
+
                     )}
+
                   </div>
 
+                  {/* Budget */}
                   <div>
+
                     <label
                       htmlFor="budget"
                       className={labelClass}
                     >
                       Approximate Budget (₹) *
                     </label>
+
                     <input
                       id="budget"
                       name="budget"
@@ -464,15 +632,19 @@ export default function EventQuoteForm() {
                       }
                       className={fieldClass}
                     />
+
                   </div>
 
+                  {/* Expected Attendees */}
                   <div>
+
                     <label
                       htmlFor="attendees"
                       className={labelClass}
                     >
                       Expected Attendees *
                     </label>
+
                     <input
                       id="attendees"
                       name="attendees"
@@ -486,36 +658,48 @@ export default function EventQuoteForm() {
                       }
                       className={fieldClass}
                     />
+
                   </div>
+
                 </div>
+
               </div>
 
               <div className="h-px bg-white/10" />
 
               {/* Contact details */}
               <div>
+
                 <div className="mb-5 flex items-center gap-3">
+
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/20 bg-amber-300/[0.08] text-sm font-semibold text-amber-200">
                     02
                   </span>
+
                   <div>
                     <h3 className="font-playfair text-xl font-semibold">
                       Contact Information
                     </h3>
+
                     <p className="mt-1 text-xs text-white/45">
                       How can our team reach you?
                     </p>
                   </div>
+
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                  {/* Full Name */}
                   <div className="sm:col-span-2">
+
                     <label
                       htmlFor="name"
                       className={labelClass}
                     >
                       Full Name *
                     </label>
+
                     <input
                       id="name"
                       name="name"
@@ -531,15 +715,19 @@ export default function EventQuoteForm() {
                       }
                       className={fieldClass}
                     />
+
                   </div>
 
+                  {/* Email */}
                   <div>
+
                     <label
                       htmlFor="email"
                       className={labelClass}
                     >
                       Email Address *
                     </label>
+
                     <input
                       id="email"
                       name="email"
@@ -554,19 +742,25 @@ export default function EventQuoteForm() {
                       }
                       className={fieldClass}
                     />
+
                   </div>
 
+                  {/* Mobile */}
                   <div>
+
                     <label
                       htmlFor="mobile"
                       className={labelClass}
                     >
                       Mobile Number *
                     </label>
+
                     <div className="flex gap-2">
+
                       <span className="flex items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm text-white/65">
                         +91
                       </span>
+
                       <input
                         id="mobile"
                         name="mobile"
@@ -589,30 +783,40 @@ export default function EventQuoteForm() {
                         }
                         className={fieldClass}
                       />
+
                     </div>
+
                   </div>
+
                 </div>
+
               </div>
 
               <div className="h-px bg-white/10" />
 
               {/* Additional requirements */}
               <div>
+
                 <div className="mb-5 flex items-center gap-3">
+
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-purple-400/20 bg-purple-500/10 text-sm font-semibold text-purple-200">
                     03
                   </span>
+
                   <div>
                     <h3 className="font-playfair text-xl font-semibold">
                       Additional Requirements
                     </h3>
+
                     <p className="mt-1 text-xs text-white/45">
                       Share any special requests with us.
                     </p>
                   </div>
+
                 </div>
 
                 <div>
+
                   <label
                     htmlFor="message"
                     className={labelClass}
@@ -622,6 +826,7 @@ export default function EventQuoteForm() {
                       (Optional)
                     </span>
                   </label>
+
                   <textarea
                     id="message"
                     name="message"
@@ -634,19 +839,24 @@ export default function EventQuoteForm() {
                     }
                     className={`${fieldClass} resize-y`}
                   />
+
                   <p className="mt-2 text-right text-xs text-white/35">
                     {form.message.length}/2000
                   </p>
+
                 </div>
+
               </div>
 
               {errorMessage && (
+
                 <div
                   role="alert"
                   className="rounded-xl border border-red-400/20 bg-red-400/[0.07] px-4 py-3 text-sm text-red-200"
                 >
                   {errorMessage}
                 </div>
+
               )}
 
               <button
@@ -654,7 +864,9 @@ export default function EventQuoteForm() {
                 disabled={isSubmitting}
                 className="group flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-purple-950/30 transition duration-200 hover:from-purple-500 hover:to-purple-400 hover:shadow-purple-700/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
+
                 {isSubmitting ? (
+
                   <>
                     <svg
                       className="h-5 w-5 animate-spin"
@@ -670,6 +882,7 @@ export default function EventQuoteForm() {
                         strokeWidth="3"
                         opacity="0.25"
                       />
+
                       <path
                         d="M21 12a9 9 0 0 0-9-9"
                         stroke="currentColor"
@@ -677,11 +890,15 @@ export default function EventQuoteForm() {
                         strokeLinecap="round"
                       />
                     </svg>
+
                     Submitting Enquiry...
                   </>
+
                 ) : (
+
                   <>
                     Submit Event Enquiry
+
                     <span
                       aria-hidden="true"
                       className="transition-transform duration-200 group-hover:translate-x-1"
@@ -689,17 +906,24 @@ export default function EventQuoteForm() {
                       →
                     </span>
                   </>
+
                 )}
+
               </button>
 
               <p className="text-center text-xs leading-5 text-white/40">
                 By submitting this form, you agree to be contacted
                 by ArtistManch regarding your event requirements.
               </p>
+
             </form>
+
           )}
+
         </div>
+
       </div>
+
     </section>
   );
 }
