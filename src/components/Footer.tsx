@@ -223,15 +223,23 @@ export default function Footer() {
               <h3 className="text-sm font-bold tracking-wide text-white">
                 Our Office
               </h3>
-              <p className="text-sm leading-6 text-white/60">
-                Mezz & 1st Floor, A-83,
-                <br />
-                Pocket D, Okhla Phase II,
-                <br />
-                Okhla Industrial Estate,
-                <br />
-                New Delhi, Delhi 110020
-              </p>
+              <a
+                href="https://share.google/FHyk0IkZb4AT4LXM9"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex flex-col items-start text-sm leading-6 text-white/60 transition-colors hover:text-[#d9b8ff]"
+              >
+                <span>Mezz & 1st Floor, A-83,</span>
+                <span>Pocket D, Okhla Phase II,</span>
+                <span>Okhla Industrial Estate,</span>
+                <span>New Delhi, Delhi 110020</span>
+                <span className="mt-1 flex items-center gap-1 text-[11px] font-bold text-[#c6a15b] opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="material-symbols-outlined text-[14px]">
+                    location_on
+                  </span>
+                  View on Maps
+                </span>
+              </a>
             </div>
           </div>
         </div>

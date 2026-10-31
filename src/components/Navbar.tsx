@@ -151,10 +151,38 @@ export default function Navbar() {
                         {category}
                       </Link>
                     ))}
+
+                    {/* More Options: for categories not listed above */}
+                    <div className="col-span-2 xl:col-span-4 mt-3 border-t border-white/10 pt-4">
+                      <Link
+                        to="/post-requirement"
+                        onClick={closeMenus}
+                        className="flex items-center justify-between gap-4 rounded-xl border border-primary/25 bg-primary/5 px-4 py-4 text-on-surface transition-all hover:border-primary/60 hover:bg-primary/10"
+                      >
+                        <span>
+                          <span className="block text-sm font-bold uppercase tracking-wide text-primary">
+                            More Options
+                          </span>
+                          <span className="mt-1 block text-xs text-on-surface-variant">
+                            Can't find your category? Tell us what you're looking for.
+                          </span>
+                        </span>
+                        <span className="material-symbols-outlined shrink-0 text-primary">
+                          arrow_forward
+                        </span>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
+
+            <Link
+              to="/booking"
+              className={`whitespace-nowrap text-[14px] transition-all px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-[0_0_15px_rgba(212,175,55,0.1)] ${isActive('/booking')}`}
+            >
+              Last-Minute Booking
+            </Link>
 
             {/* For Artists Dropdown */}
             <div
@@ -341,8 +369,37 @@ export default function Navbar() {
                     {category}
                   </Link>
                 ))}
+                <Link
+                  to="/post-requirement"
+                  className="col-span-2 mt-2 rounded-lg border border-primary/25 bg-primary/5 px-3 py-3 text-sm font-bold text-primary hover:bg-primary/10"
+                  onClick={closeMenus}
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    More Options – Post Your Requirement
+                    <span className="material-symbols-outlined text-base">
+                      arrow_forward
+                    </span>
+                  </span>
+                </Link>
               </div>
             )}
+
+            <Link
+              to="/booking"
+              className={`my-1 mx-2 py-3 px-4 rounded-xl text-sm font-bold border border-primary/20 bg-primary/5 shadow-sm transition-all ${
+                location.pathname === '/booking'
+                  ? 'text-primary bg-primary/10 border-primary/40'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-primary/10'
+              }`}
+              onClick={closeMenus}
+            >
+              <span className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">
+                  alarm
+                </span>
+                Last-Minute Booking
+              </span>
+            </Link>
 
             {/* Mobile For Artists Accordion */}
             <button
@@ -378,7 +435,7 @@ export default function Navbar() {
             )}
 
             <Link
-              to="/booking"
+              to="/post-requirement"
               className="flex items-center justify-center gap-2 mt-2 py-3 px-4 rounded-xl bg-primary text-on-primary font-bold text-sm"
               onClick={closeMenus}
             >
