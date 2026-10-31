@@ -78,7 +78,7 @@ export default function BrowseArtistsPage() {
     } as unknown as Artist;
 
     setSelectedArtist(bookingArtist);
-navigate('/artist-booking');
+    navigate('/artist-booking');
   }
 
   return (
@@ -167,7 +167,7 @@ navigate('/artist-booking');
       <section className="w-full px-4 pb-16 md:px-12">
         <div className="mx-auto max-w-[1440px]">
 
-          <div className="mb-6">
+          <div className="mb-4">
             <p className="text-[13px] text-on-surface-variant">
               Showing{' '}
               <span className="font-bold text-primary">
@@ -175,36 +175,72 @@ navigate('/artist-booking');
               </span>{' '}
               artists
               {activeCategory !== 'All Categories' && (
-                <> in <span className="font-semibold text-on-surface">{activeCategory}</span></>
+                <>
+                  {' '}in{' '}
+                  <span className="font-semibold text-on-surface">
+                    {activeCategory}
+                  </span>
+                </>
               )}
             </p>
           </div>
 
+          {/* No Artists Found */}
           {filteredArtists.length === 0 ? (
 
-            <div className="py-20 text-center">
-              <h3 className="mb-2 font-playfair text-[22px] font-semibold text-on-surface">
-                No Artists Found
-              </h3>
+            <div className="mx-auto mt-3 max-w-4xl rounded-2xl border border-[#d6b46a]/30 bg-gradient-to-r from-[#211a29] via-[#191521] to-[#17121b] px-5 py-5 shadow-[0_12px_40px_rgba(0,0,0,0.2)] md:px-7 md:py-6">
 
-              <p className="mb-6 text-[15px] text-on-surface-variant">
-                Try adjusting your search or category filter.
-              </p>
+              <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
 
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setActiveCategory('All Categories');
-                }}
-                className="rounded-xl bg-primary px-6 py-3 text-[14px] font-bold text-on-primary"
-              >
-                Clear Filters
-              </button>
+                <div className="min-w-0 flex-1">
+
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#d6b46a]">
+                    LET US HELP YOU FIND THE RIGHT TALENT
+                  </p>
+
+                  <h3 className="mt-2 font-playfair text-xl font-semibold text-white md:text-2xl">
+                    Didn't find your desired artist?
+                  </h3>
+
+                  <p className="mt-2 max-w-xl text-xs leading-5 text-white/55 md:text-sm">
+                    Tell us who you're looking for. Our team will help you find
+                    the perfect artist for your celebration.
+                  </p>
+
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/post-requirement')}
+                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f5cf65] to-[#e6a7c7] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#17121a] shadow-lg transition-all hover:-translate-y-0.5 hover:brightness-110 sm:w-auto"
+                >
+                  Post Your Requirement
+
+                  <span className="material-symbols-outlined text-lg">
+                    arrow_forward
+                  </span>
+                </button>
+
+              </div>
+
+              <div className="mt-4 flex justify-center border-t border-white/10 pt-3 sm:justify-start">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setActiveCategory('All Categories');
+                  }}
+                  className="text-xs font-semibold text-white/40 transition hover:text-[#e7c879]"
+                >
+                  Clear Search &amp; Filters
+                </button>
+              </div>
+
             </div>
 
           ) : (
 
+            /* Artists Grid */
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
               {filteredArtists.map((artist) => (
