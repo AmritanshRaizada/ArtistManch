@@ -66,8 +66,8 @@ export default function Navbar() {
       `}</style>
 
       {/* Main Navigation: above the announcement marquee */}
-      <div className="relative z-[70] w-full h-20 shrink-0 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_12px_32px_-4px_rgba(36,17,61,0.25)]">
-        <div className="max-w-[1440px] mx-auto h-full px-4 md:px-8 xl:px-12 flex items-center gap-4 lg:gap-7">
+      <div className="relative z-[70] w-full h-16 sm:h-20 shrink-0 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_12px_32px_-4px_rgba(36,17,61,0.25)]">
+        <div className="max-w-[1440px] mx-auto h-full px-3 sm:px-4 md:px-8 xl:px-12 flex items-center gap-2 sm:gap-4 lg:gap-7">
 
           {/* ArtistManch Logo: Far Left */}
           <Link
@@ -79,7 +79,7 @@ export default function Navbar() {
   <img
     src={logo}
     alt="ArtistManch Logo"
-    className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
+    className="h-10 xs:h-11 sm:h-14 md:h-16 w-auto max-w-[148px] sm:max-w-none object-contain transition-transform group-hover:scale-105"
   />
 </Link>
 
@@ -89,7 +89,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen((open) => !open)}
-            className="lg:hidden w-9 h-9 shrink-0 flex items-center justify-center text-on-surface rounded-lg hover:bg-surface-container-high"
+            className="lg:hidden w-11 h-11 shrink-0 flex items-center justify-center text-on-surface rounded-lg hover:bg-surface-container-high"
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
           >
@@ -237,7 +237,7 @@ export default function Navbar() {
           </nav>
 
           {/* Right Side: Requirement + Authentication */}
-          <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center justify-end gap-1.5 sm:gap-3 shrink-0">
 
             <Link
               to="/post-requirement"
@@ -324,7 +324,7 @@ export default function Navbar() {
 
                 <Link
                   to="/signup"
-                  className="font-bold text-[13px] sm:text-[14px] bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary px-3 sm:px-4 py-2 rounded-xl shadow-gold transition-all whitespace-nowrap"
+                  className="font-bold text-[12px] sm:text-[14px] bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-xl shadow-gold transition-all whitespace-nowrap"
                 >
                   Sign Up
                 </Link>
@@ -335,10 +335,10 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {mobileOpen && (
-          <div className="lg:hidden absolute top-full left-0 w-full max-h-[75vh] overflow-y-auto bg-[#111019] border-b border-white/10 shadow-2xl py-4 px-4 flex flex-col gap-1 z-[100]">
+          <div className="lg:hidden absolute top-full left-0 w-full max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain bg-[#111019] border-b border-white/10 shadow-2xl py-3 sm:py-4 px-3 sm:px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] flex flex-col gap-1 z-[100]">
             <Link
               to="/"
-              className={`py-3 px-3 rounded-lg text-sm ${isActive('/')}`}
+              className={`min-h-11 flex items-center py-3 px-3 rounded-lg text-sm ${isActive('/')}`}
               onClick={closeMenus}
             >
               Home
@@ -348,7 +348,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMobileArtistsOpen((open) => !open)}
-              className="flex items-center justify-between py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-on-surface"
+              className="min-h-11 flex items-center justify-between py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-on-surface"
               aria-expanded={mobileArtistsOpen}
             >
               Book an Artist
@@ -363,7 +363,7 @@ export default function Navbar() {
                   <Link
                     key={category}
                     to={`/browse?category=${encodeURIComponent(category)}`}
-                    className="py-2 px-2 rounded-md text-xs text-on-surface-variant hover:text-primary"
+                    className="min-h-10 flex items-center py-2 px-2 rounded-md text-xs text-on-surface-variant hover:text-primary"
                     onClick={closeMenus}
                   >
                     {category}
@@ -405,7 +405,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMobileForArtistsOpen((open) => !open)}
-              className="flex items-center justify-between py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-on-surface"
+              className="min-h-11 flex items-center justify-between py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-on-surface"
               aria-expanded={mobileForArtistsOpen}
             >
               For Artists
@@ -418,7 +418,7 @@ export default function Navbar() {
               <div className="ml-3 pl-3 border-l border-white/15">
                 <Link
                   to="/active-gigs"
-                  className="block py-3 px-3 text-sm text-on-surface-variant hover:text-primary"
+                  className="min-h-11 flex items-center py-3 px-3 text-sm text-on-surface-variant hover:text-primary"
                   onClick={closeMenus}
                 >
                   Active Gigs
@@ -426,7 +426,7 @@ export default function Navbar() {
 
                 <Link
                   to="/artist-faq"
-                  className="block py-3 px-3 text-sm text-on-surface-variant hover:text-primary"
+                  className="min-h-11 flex items-center py-3 px-3 text-sm text-on-surface-variant hover:text-primary"
                   onClick={closeMenus}
                 >
                   Artist FAQ
@@ -449,7 +449,7 @@ export default function Navbar() {
               <>
                 <Link
                   to="/dashboard"
-                  className="py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-primary"
+                  className="min-h-11 flex items-center py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-primary"
                   onClick={closeMenus}
                 >
                   My Bookings
@@ -458,7 +458,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-left py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-primary"
+                  className="min-h-11 text-left py-3 px-3 rounded-lg text-sm text-on-surface-variant hover:text-primary"
                 >
                   Sign Out
                 </button>

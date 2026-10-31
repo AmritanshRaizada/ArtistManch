@@ -108,10 +108,10 @@ export default function Footer() {
         <div className="absolute bottom-[-12rem] right-[-5rem] h-[26rem] w-[26rem] rounded-full bg-[#40216e]/20 blur-[100px]" />
       </div>
 
-      <div className="mx-auto max-w-[1440px] px-5 pb-6 pt-14 sm:px-8 md:pt-20 lg:px-12">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
+      <div className="mx-auto max-w-[1440px] px-4 pb-5 pt-8 sm:px-8 sm:pt-12 md:pt-20 lg:px-12">
+        <div className="grid grid-cols-1 gap-7 sm:gap-9 lg:grid-cols-12 lg:gap-10">
           {/* Brand panel */}
-          <div className="relative min-h-[290px] overflow-hidden rounded-[2rem] border border-white/[0.12] bg-gradient-to-br from-[#111018] via-[#0b0a10] to-[#171020] p-7 sm:p-9 lg:col-span-5 lg:p-10">
+          <div className="relative min-h-0 overflow-hidden rounded-2xl border border-white/[0.12] bg-gradient-to-br from-[#111018] via-[#0b0a10] to-[#171020] p-5 sm:min-h-[260px] sm:rounded-[2rem] sm:p-9 lg:col-span-5 lg:p-10">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 overflow-hidden"
@@ -136,12 +136,12 @@ export default function Footer() {
                 />
               </Link>
 
-              <h2 className="mt-10 max-w-md font-playfair text-3xl leading-tight text-white sm:text-4xl lg:text-[2.65rem]">
+              <h2 className="mt-5 max-w-md font-playfair text-2xl leading-tight text-white sm:mt-10 sm:text-4xl lg:text-[2.65rem]">
                 Har Jashn Ho{' '}
                 <span className="italic text-[#d6b46a]">Shaandaar!.</span>
               </h2>
 
-              <p className="mt-4 max-w-sm text-sm leading-6 text-white/55 sm:text-base">
+              <p className="mt-2 max-w-sm text-xs leading-5 text-white/55 sm:mt-4 sm:text-base sm:leading-6">
                 Discover extraordinary talent and bring the right artist to
                 your special moments.
               </p>
@@ -149,7 +149,7 @@ export default function Footer() {
               <Link
                 to="/browse"
                 onClick={scrollToTop}
-                className="mt-7 inline-flex items-center gap-2 rounded-full border border-[#c6a15b]/40 bg-[#c6a15b]/10 px-5 py-3 text-sm font-semibold text-[#f0d58d] transition hover:border-[#c6a15b] hover:bg-[#c6a15b]/20"
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#c6a15b]/40 bg-[#c6a15b]/10 px-4 py-2.5 text-xs font-semibold text-[#f0d58d] transition hover:border-[#c6a15b] hover:bg-[#c6a15b]/20 sm:mt-7 sm:px-5 sm:py-3 sm:text-sm"
               >
                 Explore artists
                 <span className="material-symbols-outlined text-[18px]">
@@ -160,8 +160,8 @@ export default function Footer() {
           </div>
 
           {/* Navigation columns */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:col-span-7 lg:grid-cols-4 lg:gap-x-7 lg:pl-3">
-            <div className="flex flex-col items-start gap-4">
+          <div className="grid grid-cols-2 items-start gap-x-4 gap-y-7 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-9 lg:col-span-7 lg:grid-cols-4 lg:gap-x-7 lg:pl-3">
+            <div className="flex min-w-0 flex-col items-start gap-3 sm:gap-4">
               <h3 className="text-sm font-bold tracking-wide text-white">
                 For Clients
               </h3>
@@ -169,7 +169,7 @@ export default function Footer() {
               <FooterLink to="/booking">Start Booking</FooterLink>
             </div>
 
-            <div className="flex flex-col items-start gap-4">
+            <div className="flex min-w-0 flex-col items-start gap-3 sm:gap-4">
               <h3 className="text-sm font-bold tracking-wide text-white">
                 For Artists
               </h3>
@@ -177,7 +177,7 @@ export default function Footer() {
               <FooterLink to="/artist-faq">Artist FAQ</FooterLink>
             </div>
 
-            <div className="flex flex-col items-start gap-4">
+            <div className="flex min-w-0 flex-col items-start gap-3 sm:gap-4">
               <h3 className="text-sm font-bold tracking-wide text-white">
                 ArtistManch
               </h3>
@@ -186,7 +186,7 @@ export default function Footer() {
               <FooterLink to="/contact">Contact Us</FooterLink>
             </div>
 
-            <div className="col-span-2 flex flex-col items-start gap-4 sm:col-span-1">
+            <div className="flex min-w-0 flex-col items-start gap-3 sm:gap-4">
               <h3 className="text-sm font-bold tracking-wide text-white">
                 Policies
               </h3>
@@ -195,7 +195,7 @@ export default function Footer() {
               <FooterLink to="/refund-policy">Refund Policy</FooterLink>
             </div>
 
-            <div className="flex flex-col items-start gap-4">
+            <div className="flex min-w-0 flex-col items-start gap-3 sm:gap-4">
               <h3 className="text-sm font-bold tracking-wide text-white">
                 Connect with Us
               </h3>
@@ -219,7 +219,7 @@ export default function Footer() {
               </a>
             </div>
 
-            <div className="col-span-2 flex flex-col items-start gap-4 sm:col-span-1">
+            <div className="flex min-w-0 flex-col items-start gap-3 sm:gap-4">
               <h3 className="text-sm font-bold tracking-wide text-white">
                 Our Office
               </h3>
@@ -245,7 +245,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col gap-5 border-t border-white/[0.10] pt-6 sm:mt-16 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-4 border-t border-white/[0.10] pt-5 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
           <p className="text-xs leading-5 text-white/40">
             © {new Date().getFullYear()} ArtistManch. All rights reserved.
           </p>

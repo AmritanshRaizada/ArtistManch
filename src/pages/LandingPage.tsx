@@ -4,6 +4,26 @@ export default function LandingPage() {
   const navigate = useNavigate();
   return (
     <div className="w-full flex flex-col bg-surface min-h-screen">
+      <style>{`
+  @keyframes artistmanch-wave-letter {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    35% {
+      transform: translateY(-12px);
+    }
+    65% {
+      transform: translateY(2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wavy-tagline span {
+      animation: none !important;
+    }
+  }
+`}</style>
+
       {/* Section 1: Cinematic Hero */}
 <section className="relative w-full overflow-hidden bg-[#0e0e11] px-4 pt-28 pb-8 sm:pt-30 sm:pb-10 md:px-12 md:pt-36 md:pb-12 min-h-[calc(100svh-120px)] flex flex-col justify-center">        {/* Full-bleed Background Video */}
         <video
@@ -55,17 +75,7 @@ export default function LandingPage() {
         {/* Hero Content */}
         <div className="max-w-[1320px] mx-auto relative z-10 flex flex-col items-center text-center">
           {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-lg shadow-black/50 mb-6 border border-outline-variant/30">
-            <span
-              className="material-symbols-outlined text-primary text-[17px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              stars
-            </span>
-            <span className="font-bold text-[12px] uppercase tracking-[0.2em] wavy-tagline">
-              Har Jashn Ho Shaandaar!
-            </span>
-          </div>
+          
 
           {/* Main Headline — Clean Festive Offer */}
           <div className="max-w-4xl mx-auto mt-4 mb-6 text-center">
@@ -103,9 +113,25 @@ export default function LandingPage() {
 
           {/* Supporting Copy */}
           <p className="text-[18px] md:text-[20px] text-on-surface-variant max-w-2xl mx-auto mb-12 leading-[28px] drop-shadow">
-            <span className="wavy-tagline block mb-2">Har Jashn Ho Shaandaar!</span>
-            ArtistManch brings together exceptional Live Singers, Soulful Sufi Artists, and captivating Performers to elevate every occasion. From Grand Weddings and Private Soirées to distinguished Corporate Celebrations, discover the talent that transforms your event into an experience remembered long after the final applause.
-          </p>
+            <span
+              className="mb-3 block font-playfair text-2xl font-bold italic leading-tight text-primary drop-shadow-[0_2px_14px_rgba(242,202,80,0.22)] sm:text-3xl md:text-4xl"
+              aria-label="Har Jashn Ho Shaandaar!"
+            >
+              {'Har Jashn Ho Shaandaar!'.split('').map((character, index) => (
+                <span
+                  key={`${character}-${index}`}
+                  className="inline-block"
+                  style={{
+                    animation: 'artistmanch-wave-letter 2.8s ease-in-out infinite',
+                    animationDelay: `${index * 45}ms`,
+                    whiteSpace: character === ' ' ? 'pre' : undefined,
+                  }}
+                >
+                  {character === ' ' ? '\u00a0' : character}
+                </span>
+              ))}
+            </span>
+ArtistManch brings exceptional singers, Sufi artists, and performers to weddings, corporate events, and celebrations, creating unforgettable experiences.          </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-12">
@@ -224,35 +250,71 @@ export default function LandingPage() {
       </section>
 
       {/* Section 3: Festive Advance Offer Banner */}
-      <section className="w-full py-16 px-4 md:px-12 bg-surface">
-        <div className="max-w-[1320px] mx-auto">
+      <section className="w-full bg-surface px-4 py-10 sm:py-14 md:px-12 md:py-16">
+        <div className="mx-auto max-w-[1320px]">
           <div
-            className="rounded-2xl p-8 md:p-12 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #24113d 0%, #1f1f22 50%, #1b1b1e 100%)' }}
+            className="relative isolate overflow-hidden rounded-2xl border border-white/[0.08] px-5 py-8 shadow-[0_20px_60px_-28px_rgba(0,0,0,0.8)] sm:rounded-3xl sm:px-8 sm:py-10 md:px-12 md:py-12"
+            style={{ background: 'linear-gradient(135deg, #24113d 0%, #1f1f22 52%, #1b1b1e 100%)' }}
           >
-            <div className="absolute top-0 right-0 w-80 h-80 rounded-full blur-[100px] pointer-events-none" style={{ background: 'rgba(212,175,55,0.12)' }} />
-            <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: 'rgba(96,1,209,0.2)' }} />
-            <div className="relative z-10 text-center">
-              <span className="font-bold text-[11px] uppercase tracking-[0.2em] text-primary block mb-3">🎉 Festive Season Special</span>
-              <h2 className="font-playfair text-[28px] md:text-[40px] font-semibold text-on-surface mb-4" style={{ letterSpacing: '-0.015em' }}>
-                Book Now, Pay Only <span className="text-primary italic">20% Advance</span>
+            <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 -z-10 h-64 w-64 rounded-full blur-[90px] sm:h-80 sm:w-80" style={{ background: 'rgba(212,175,55,0.14)' }} />
+            <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-16 -z-10 h-56 w-56 rounded-full blur-[80px] sm:h-64 sm:w-64" style={{ background: 'rgba(96,1,209,0.22)' }} />
+
+            <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
+              <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.08] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-primary sm:mb-4 sm:text-[11px]">
+                <span aria-hidden="true">🎉</span>
+                Festive Season Special
+              </span>
+
+              <h2 className="mb-3 font-playfair text-[27px] font-semibold leading-tight tracking-[-0.02em] text-on-surface sm:mb-4 sm:text-3xl md:text-[40px]">
+                Book Now, Pay Only
+                <span className="mt-1 block text-primary italic sm:inline sm:mt-0 sm:pl-2">20% Advance</span>
               </h2>
-              <p className="text-[15px] text-on-surface-variant max-w-2xl mx-auto mb-2">
-                No more 50% advance payments! Lock your artist for just 20% of the budget as advance. First time on ArtistManch?
+
+              <p className="mb-6 max-w-xl text-[13px] leading-6 text-on-surface-variant sm:mb-7 sm:text-[15px] sm:leading-7">
+                No more 50% advance payments. Lock your artist with just 20% of your event budget.
               </p>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8">
-                <span className="material-symbols-outlined text-primary text-[18px]">local_offer</span>
-                <span className="font-bold text-[14px] text-primary">Use coupon <span className="font-bold tracking-[0.1em]">FIRST10</span> for just 10% advance on your first booking!</span>
+
+              {/* First-booking coupon: separate offer card for clear visual hierarchy */}
+              <div className="mb-7 w-full max-w-xl rounded-2xl border border-primary/40 bg-black/20 p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:mb-8 sm:p-5">
+                <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10">
+                    <span className="material-symbols-outlined text-[23px] text-primary">sell</span>
+                  </div>
+
+                  <div className="min-w-0 flex-1 text-center sm:text-left">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/90 sm:text-[11px]">
+                      First booking bonus
+                    </p>
+                    <p className="mt-1 text-sm font-semibold leading-5 text-on-surface sm:text-base">
+                      Get your first booking with just
+                      <span className="text-primary"> 10% advance</span>
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-on-surface-variant">
+                      Apply this coupon when submitting your booking.
+                    </p>
+                  </div>
+
+                  <div className="flex shrink-0 flex-col items-center rounded-xl border border-dashed border-primary/60 bg-primary/[0.08] px-5 py-2.5 sm:min-w-[132px]">
+                    <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+                      Use code
+                    </span>
+                    <span className="font-mono text-xl font-extrabold tracking-[0.16em] text-primary">
+                      FIRST10
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <button
-                  onClick={() => navigate('/booking')}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.4)] hover:scale-[1.03] transition-all"
-                >
-                  <span>Start your booking</span>
-                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </button>
-              </div>
+
+              <button
+                onClick={() => {
+                  navigate('/booking');
+                  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-[13px] font-bold uppercase tracking-[0.04em] text-on-primary shadow-[0_12px_28px_-6px_rgba(242,202,80,0.4)] transition-all hover:scale-[1.02] hover:shadow-[0_14px_32px_-6px_rgba(242,202,80,0.5)] sm:w-auto sm:px-8 sm:py-4 sm:text-sm"
+              >
+                <span>Start your booking</span>
+                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </button>
             </div>
           </div>
         </div>
