@@ -578,7 +578,19 @@ export default function ArtistBookingPage() {
               />
             </div>
           </div>
-          <p className="mt-2 text-[10px] text-white/35">Budget range: ₹10,000 – ₹10 crore. This is an indicative budget, not a payment.</p>
+          <p className="mt-2 text-[10px] leading-5 text-white/40">
+            Budget range: ₹10,000 – ₹10 crore. Your selected amount is indicative.
+          </p>
+
+          <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#d6b46a]/15 bg-[#d6b46a]/[0.05] p-3">
+            <span className="material-symbols-outlined mt-0.5 text-sm text-[#d6b46a]">
+              info
+            </span>
+            <p className="text-[11px] leading-5 text-white/55">
+              Our team will review your event requirements and get back to you
+              with the artist's availability and a personalised quotation.
+            </p>
+          </div>
         </section>
 
           </aside>
