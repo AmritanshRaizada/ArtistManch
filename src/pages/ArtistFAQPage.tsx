@@ -89,6 +89,18 @@ export default function ArtistFAQPage() {
   return (
     <main style={{ minHeight: '100vh', background: '#0b0910', color: '#f7f2fa', position: 'relative', overflow: 'hidden' }}>
       <style>{`
+        @keyframes artist-faq-gold-drift {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(16px, -9px, 0); }
+        }
+        .artist-faq-gold-ribbons {
+          animation: artist-faq-gold-drift 24s ease-in-out infinite;
+          transform-origin: center;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .artist-faq-gold-ribbons { animation: none; }
+        }
+
         .artist-faq-page * { box-sizing: border-box; }
         .artist-faq-page button, .artist-faq-page input, .artist-faq-page select { font: inherit; }
         .artist-faq-page button { cursor: pointer; }
@@ -116,7 +128,44 @@ export default function ArtistFAQPage() {
 
       <div aria-hidden="true" style={{ position: 'absolute', inset: '0 0 auto', height: 430, pointerEvents: 'none', background: 'radial-gradient(ellipse at 14% 0%, rgba(91,24,136,.22), transparent 44%), radial-gradient(ellipse at 88% 0%, rgba(212,175,55,.09), transparent 34%)' }} />
 
-      <div className="artist-faq-page" style={{ position: 'relative', maxWidth: 1360, margin: '0 auto', padding: '0 28px 64px' }}>
+      {/* Subtle golden ribbons behind the FAQ content */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+        <svg
+          className="artist-faq-gold-ribbons"
+          viewBox="0 0 1600 1000"
+          fill="none"
+          preserveAspectRatio="xMidYMin slice"
+          style={{ position: 'absolute', top: 0, left: '-18%', width: '136%', height: 920, opacity: 0.25 }}
+        >
+          <defs>
+            <linearGradient id="artistFaqGoldRibbonA" x1="0" y1="0" x2="1500" y2="800" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#8F6826" stopOpacity="0" />
+              <stop offset="0.38" stopColor="#D6B46A" stopOpacity="0.72" />
+              <stop offset="0.62" stopColor="#F5CF65" stopOpacity="0.48" />
+              <stop offset="1" stopColor="#8F6826" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="artistFaqGoldRibbonB" x1="100" y1="0" x2="1450" y2="900" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#F5CF65" stopOpacity="0" />
+              <stop offset="0.5" stopColor="#D6B46A" stopOpacity="0.42" />
+              <stop offset="1" stopColor="#F5CF65" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          <g strokeLinecap="round">
+            <path d="M-120 210C180 20 330 90 520 260C720 440 850 500 1080 330C1280 180 1420 180 1710 360" stroke="url(#artistFaqGoldRibbonA)" strokeWidth="1.6" />
+            <path d="M-120 245C180 55 350 130 540 300C735 475 875 535 1100 365C1300 215 1450 220 1710 395" stroke="url(#artistFaqGoldRibbonB)" strokeWidth="0.9" />
+            <path d="M-140 690C120 520 330 540 520 690C730 855 930 900 1130 730C1320 570 1490 590 1720 750" stroke="url(#artistFaqGoldRibbonA)" strokeWidth="1.4" />
+            <path d="M-140 725C120 555 350 580 540 725C750 885 950 935 1150 765C1340 605 1510 625 1720 785" stroke="url(#artistFaqGoldRibbonB)" strokeWidth="0.8" />
+            <path d="M210 -100C350 100 360 260 250 420C145 575 165 720 350 900" stroke="url(#artistFaqGoldRibbonB)" strokeWidth="1" />
+            <path d="M1390 -100C1240 100 1230 260 1340 420C1450 580 1430 730 1250 900" stroke="url(#artistFaqGoldRibbonA)" strokeWidth="1.2" />
+          </g>
+        </svg>
+
+        <div style={{ position: 'absolute', left: -150, top: 100, width: 380, height: 380, borderRadius: '50%', background: 'rgba(214,180,106,.045)', filter: 'blur(115px)' }} />
+        <div style={{ position: 'absolute', right: -150, top: 420, width: 380, height: 380, borderRadius: '50%', background: 'rgba(214,180,106,.04)', filter: 'blur(115px)' }} />
+      </div>
+
+      <div className="artist-faq-page" style={{ position: 'relative', zIndex: 1, maxWidth: 1360, margin: '0 auto', padding: '0 28px 64px' }}>
         <header className="faq-header" style={{ textAlign: 'center', padding: '58px 0 28px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid rgba(226,191,89,.25)', background: 'rgba(226,191,89,.07)', borderRadius: 999, padding: '7px 13px', marginBottom: 18 }}>
             <span style={{ color: GOLD, display: 'inline-flex' }}><StarIcon /></span>

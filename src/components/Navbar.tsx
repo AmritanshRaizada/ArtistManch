@@ -37,7 +37,15 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 left-0 w-full z-[100] flex flex-col">
+    <header
+      className="fixed top-0 left-0 w-full z-[100] flex flex-col"
+      onClick={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest('a, button')) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }}
+    >
       <style>{`
         @keyframes artistmanch-marquee {
           from {

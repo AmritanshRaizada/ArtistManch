@@ -265,13 +265,85 @@ export default function ArtistBookingPage() {
   const finalCity = city === 'Other' ? customCity.trim() : city;
 
   return (
-    <main className="min-h-screen bg-[#09080e] px-4 pb-20 pt-28 text-white md:px-8">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-purple-700/10 blur-[130px]" />
-        <div className="absolute -right-40 top-72 h-96 w-96 rounded-full bg-amber-500/10 blur-[130px]" />
+    <main className="relative isolate min-h-screen overflow-hidden bg-[#09080e] px-4 pb-20 pt-28 text-white md:px-8">
+      <style>{`
+        @keyframes artistmanch-gold-drift {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(18px, -10px, 0); }
+        }
+
+        .artistmanch-gold-ribbons {
+          animation: artistmanch-gold-drift 22s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .artistmanch-gold-ribbons { animation: none; }
+        }
+      `}</style>
+
+      {/* Subtle golden ribbons behind the booking interface */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <svg
+          className="artistmanch-gold-ribbons absolute -left-[18%] top-0 h-[760px] w-[136%] opacity-[0.28] md:h-[920px]"
+          viewBox="0 0 1600 1000"
+          fill="none"
+          preserveAspectRatio="xMidYMin slice"
+        >
+          <defs>
+            <linearGradient id="artistmanchGoldRibbonA" x1="0" y1="0" x2="1500" y2="800" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#8F6826" stopOpacity="0" />
+              <stop offset="0.38" stopColor="#D6B46A" stopOpacity="0.72" />
+              <stop offset="0.62" stopColor="#F5CF65" stopOpacity="0.48" />
+              <stop offset="1" stopColor="#8F6826" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="artistmanchGoldRibbonB" x1="100" y1="0" x2="1450" y2="900" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#F5CF65" stopOpacity="0" />
+              <stop offset="0.5" stopColor="#D6B46A" stopOpacity="0.42" />
+              <stop offset="1" stopColor="#F5CF65" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          <g strokeLinecap="round">
+            <path
+              d="M-120 210C180 20 330 90 520 260C720 440 850 500 1080 330C1280 180 1420 180 1710 360"
+              stroke="url(#artistmanchGoldRibbonA)"
+              strokeWidth="1.6"
+            />
+            <path
+              d="M-120 245C180 55 350 130 540 300C735 475 875 535 1100 365C1300 215 1450 220 1710 395"
+              stroke="url(#artistmanchGoldRibbonB)"
+              strokeWidth="0.9"
+            />
+            <path
+              d="M-140 690C120 520 330 540 520 690C730 855 930 900 1130 730C1320 570 1490 590 1720 750"
+              stroke="url(#artistmanchGoldRibbonA)"
+              strokeWidth="1.4"
+            />
+            <path
+              d="M-140 725C120 555 350 580 540 725C750 885 950 935 1150 765C1340 605 1510 625 1720 785"
+              stroke="url(#artistmanchGoldRibbonB)"
+              strokeWidth="0.8"
+            />
+            <path
+              d="M210 -100C350 100 360 260 250 420C145 575 165 720 350 900"
+              stroke="url(#artistmanchGoldRibbonB)"
+              strokeWidth="1"
+            />
+            <path
+              d="M1390 -100C1240 100 1230 260 1340 420C1450 580 1430 730 1250 900"
+              stroke="url(#artistmanchGoldRibbonA)"
+              strokeWidth="1.2"
+            />
+          </g>
+        </svg>
+
+        <div className="absolute -left-40 top-24 h-96 w-96 rounded-full bg-purple-700/[0.07] blur-[130px]" />
+        <div className="absolute -right-40 top-72 h-96 w-96 rounded-full bg-amber-500/[0.07] blur-[130px]" />
+        <div className="absolute -bottom-40 left-1/3 h-96 w-96 rounded-full bg-[#d6b46a]/[0.035] blur-[130px]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative z-10 mx-auto max-w-7xl">
         <header className="mb-8 pt-6">
   <p className="text-center text-[11px] font-bold uppercase tracking-[0.35em] text-[#d6b46a]">
     ARTISTMANCH / BOOKING STUDIO
@@ -487,26 +559,39 @@ export default function ArtistBookingPage() {
 
           <aside className="min-w-0 space-y-5 lg:sticky lg:top-28">
         {/* Selected artist */}
-        <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-4 backdrop-blur-xl md:p-5">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d6b46a]/25 bg-[#d6b46a]/10 text-[#e7c879]">
-                <span className="material-symbols-outlined text-2xl">artist</span>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">You’re booking</p>
-                <h2 className="mt-1 break-words text-xl font-semibold tracking-tight md:text-2xl">{artist.professional_name}</h2>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/50">
-                  <span className="rounded-full border border-[#d6b46a]/30 bg-[#d6b46a]/10 px-2.5 py-1 text-[#e7c879]">{artist.category}</span>
-                  <span>{artistLanguages}</span>
-                  <span className="text-white/20">•</span>
-                  <span>{artistDuration}</span>
-                </div>
-              </div>
+        <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#1a1720] to-[#111019] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.18)]">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d6b46a]/25 bg-[#d6b46a]/10 text-[#e7c879]">
+              <span className="material-symbols-outlined text-2xl">artist</span>
             </div>
-            <button type="button" onClick={() => navigate('/browse')} className="self-start rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 transition hover:border-[#d6b46a]/50 hover:text-[#e7c879] sm:self-center">
-              Change artist ↗
-            </button>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+                YOU’RE BOOKING
+              </p>
+
+              <h2 className="mt-1 break-words text-xl font-semibold leading-tight tracking-tight text-white md:text-2xl">
+                {artist.professional_name}
+              </h2>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[#d6b46a]/30 bg-[#d6b46a]/10 px-3 py-1.5 text-xs font-medium text-[#e7c879]">
+                  {artist.category}
+                </span>
+
+                {artistLanguages !== 'Not specified' && (
+                  <span className="text-xs text-white/55">
+                    {artistLanguages}
+                  </span>
+                )}
+              </div>
+
+              {artistDuration !== 'To be discussed' && (
+                <p className="mt-2 text-xs text-white/45">
+                  Performance duration: {artistDuration}
+                </p>
+              )}
+            </div>
           </div>
         </section>
 

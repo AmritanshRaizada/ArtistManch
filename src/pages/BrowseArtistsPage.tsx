@@ -82,7 +82,58 @@ export default function BrowseArtistsPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-background pt-28">
+    <div className="relative isolate w-full min-h-screen overflow-hidden bg-background pt-28">
+      <style>{`
+        @keyframes artistmanch-gold-flow {
+          0% { transform: translate3d(-1.5%, 0, 0) rotate(-1deg); }
+          50% { transform: translate3d(1.5%, 1%, 0) rotate(1deg); }
+          100% { transform: translate3d(-1.5%, 0, 0) rotate(-1deg); }
+        }
+
+        .artistmanch-gold-ribbons {
+          animation: artistmanch-gold-flow 36s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .artistmanch-gold-ribbons {
+            animation: none;
+          }
+        }
+      `}</style>
+
+      {/* Decorative gold ribbons and ambient glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+      >
+        <div className="absolute -left-40 top-24 h-[420px] w-[420px] rounded-full bg-[#d6b46a]/[0.055] blur-[120px]" />
+        <div className="absolute -right-40 top-[38%] h-[480px] w-[480px] rounded-full bg-[#8b5cf6]/[0.07] blur-[140px]" />
+        <div className="absolute bottom-0 left-1/3 h-[360px] w-[520px] rounded-full bg-[#d6b46a]/[0.045] blur-[130px]" />
+
+        <svg
+          className="artistmanch-gold-ribbons absolute inset-0 h-full min-h-full w-full opacity-45"
+          viewBox="0 0 1440 1200"
+          preserveAspectRatio="xMidYMin slice"
+          fill="none"
+        >
+          <defs>
+            <linearGradient id="artistmanch-gold-gradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#8F6826" stopOpacity="0.12" />
+              <stop offset="45%" stopColor="#D6B46A" stopOpacity="0.72" />
+              <stop offset="100%" stopColor="#F5CF65" stopOpacity="0.16" />
+            </linearGradient>
+          </defs>
+          <path d="M-180 250 C180 40 360 520 720 300 S1190 80 1620 340" stroke="url(#artistmanch-gold-gradient)" strokeWidth="1.6" />
+          <path d="M-160 285 C190 75 390 555 745 335 S1210 115 1640 375" stroke="url(#artistmanch-gold-gradient)" strokeWidth="0.8" />
+          <path d="M-220 820 C160 600 420 1040 790 820 S1250 610 1660 900" stroke="url(#artistmanch-gold-gradient)" strokeWidth="1.4" />
+          <path d="M-200 855 C180 635 440 1075 810 855 S1270 645 1680 935" stroke="url(#artistmanch-gold-gradient)" strokeWidth="0.7" />
+          <path d="M220 -120 C420 180 160 420 430 650 S760 990 610 1320" stroke="url(#artistmanch-gold-gradient)" strokeWidth="0.9" />
+          <path d="M1120 -140 C920 160 1190 420 930 670 S700 1010 850 1340" stroke="url(#artistmanch-gold-gradient)" strokeWidth="1.1" />
+        </svg>
+      </div>
+
+      <div className="relative z-10">
 
       {/* Hero Header */}
       <section className="relative w-full overflow-hidden px-4 py-10 md:px-12">
@@ -243,7 +294,7 @@ export default function BrowseArtistsPage() {
             /* Artists Grid */
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
-              {filteredArtists.map((artist) => (
+              {filteredArtists.map((artist, index) => (
                 <article
                   key={artist.searchLink}
                   role="link"
@@ -256,32 +307,49 @@ export default function BrowseArtistsPage() {
                       handleCardClick(artist.searchLink);
                     }
                   }}
-                  className="group flex min-w-0 cursor-pointer flex-col rounded-2xl border border-white/10 bg-[#101016] p-5 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_16px_36px_rgba(124,58,237,0.16)] focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-[26px] border border-white/[0.09] bg-[linear-gradient(145deg,rgba(35,29,43,0.96),rgba(15,14,21,0.98)_58%)] p-5 shadow-[0_14px_38px_rgba(0,0,0,0.22)] transition-all duration-500 hover:-translate-y-2 hover:border-[#d6b46a]/45 hover:shadow-[0_24px_55px_rgba(0,0,0,0.38),0_0_28px_rgba(214,180,106,0.09)] focus:outline-none focus:ring-2 focus:ring-[#d6b46a]"
                 >
+                  {/* Soft metallic accent */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#e7c879]/70 to-transparent opacity-60" />
+                  <div className="pointer-events-none absolute -right-14 -top-16 h-40 w-40 rounded-full bg-[#d6b46a]/[0.07] blur-3xl transition-all duration-500 group-hover:bg-[#d6b46a]/[0.13]" />
 
-                  {/* Artist Name */}
-                  <h2 className="font-playfair text-xl font-semibold text-white transition-colors group-hover:text-[#e7c879]">
+                  <div className="relative flex items-start justify-between gap-3">
+                    <span className="font-playfair text-[11px] tracking-[0.22em] text-[#d6b46a]/55">
+                      ARTIST <span className="text-white/20">/</span> {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="material-symbols-outlined text-[18px] text-white/25 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-[#e7c879]">
+                      north_east
+                    </span>
+                  </div>
+
+                  {/* Artist name */}
+                  <h2 className="relative mt-5 min-h-[3.5rem] break-words font-playfair text-[23px] font-semibold leading-[1.2] tracking-[-0.025em] text-white transition-colors duration-300 group-hover:text-[#f0d58e]">
                     {artist.name}
                   </h2>
 
                   {/* Category */}
-                  <span className="mt-3 w-fit max-w-full rounded-full border border-[#d6b46a]/30 bg-[#d6b46a]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#e7c879]">
-                    {artist.category}
-                  </span>
+                  <div className="relative mt-4">
+                    <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#d6b46a]/25 bg-[#d6b46a]/[0.08] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#e7c879]">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#e7c879] shadow-[0_0_8px_rgba(231,200,121,0.7)]" />
+                      <span className="truncate">{artist.category}</span>
+                    </span>
+                  </div>
 
                   {/* Languages */}
-                  <div className="mt-5 flex flex-1 items-start gap-2 text-xs text-white/65">
-
-                    <span className="material-symbols-outlined shrink-0 text-base text-[#d6b46a]">
+                  <div className="relative mt-6 flex min-h-[58px] items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.035] px-3.5 py-3">
+                    <span className="material-symbols-outlined flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#d6b46a]/[0.10] text-[18px] text-[#e7c879]">
                       translate
                     </span>
-
-                    <span className="leading-6">
-                      {artist.language.length > 0
-                        ? artist.language.join(', ')
-                        : 'Language not specified'}
-                    </span>
-
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                        Languages
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-[12px] leading-5 text-white/75">
+                        {artist.language.length > 0
+                          ? artist.language.join(' · ')
+                          : 'English, Hindi'}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Book Now */}
@@ -292,15 +360,13 @@ export default function BrowseArtistsPage() {
                       event.stopPropagation();
                       handleBookNow(artist);
                     }}
-                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#ec4899] px-4 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#d6b46a]"
+                    className="relative mt-5 inline-flex w-full items-center justify-between rounded-2xl border border-[#f5cf65]/30 bg-gradient-to-r from-[#d99a32] via-[#e9a34b] to-[#d95b8e] px-4 py-3.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#17121a] shadow-[0_8px_22px_rgba(217,154,50,0.14)] transition-all duration-300 hover:brightness-110 hover:shadow-[0_10px_28px_rgba(217,154,50,0.25)] focus:outline-none focus:ring-2 focus:ring-[#d6b46a] focus:ring-offset-2 focus:ring-offset-[#17141d]"
                   >
-                    Book Now
-
-                    <span className="material-symbols-outlined text-base">
+                    <span>Book this artist</span>
+                    <span className="material-symbols-outlined flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[18px] transition-transform duration-300 group-hover:translate-x-1">
                       arrow_forward
                     </span>
                   </button>
-
                 </article>
               ))}
 
@@ -309,6 +375,7 @@ export default function BrowseArtistsPage() {
 
         </div>
       </section>
+      </div>
     </div>
   );
 }

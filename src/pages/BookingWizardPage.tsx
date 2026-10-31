@@ -65,7 +65,7 @@ export default function BookingWizardPage() {
   const [eventType, setEventType] = useState(wizardData.eventType || '');
   const [otherEventType, setOtherEventType] = useState('');
   const [city, setCity] = useState(wizardData.city || '');
-  const [artistType, setArtistType] = useState(wizardData.artistType || wizardData.selectedArtist?.category || '');
+  const [artistType, setArtistType] = useState(wizardData.artistType || '');
   const [otherArtistType, setOtherArtistType] = useState('');
   const [selectedBudget, setSelectedBudget] = useState<BudgetBracket | null>(wizardData.budget || null);
   const [couponCode, setCouponCode] = useState(wizardData.couponCode || '');
@@ -89,10 +89,9 @@ export default function BookingWizardPage() {
   }, [offerSecondsLeft !== null && offerSecondsLeft > 0]);
 
   useEffect(() => {
-    if (wizardData.selectedArtist && !artistType) setArtistType(wizardData.selectedArtist.category);
     if (user?.displayName && !customerName) setCustomerName(user.displayName);
     if (user?.email && !customerEmail) setCustomerEmail(user.email);
-  }, [wizardData.selectedArtist, user, artistType, customerName, customerEmail]);
+  }, [user, customerName, customerEmail]);
 
   // Keep the progress bar tied to the user's scroll position through the full form.
   useEffect(() => {
@@ -169,8 +168,6 @@ export default function BookingWizardPage() {
         leadId: finalLeadId,
         submissionKey,
         uid: bookingUser.uid,
-        selectedArtistId: wizardData.selectedArtist?.id || null,
-        selectedArtistName: wizardData.selectedArtist?.professional_name || null,
         artistType: resolvedArtistType,
         eventType: resolvedEventType,
         city: city.trim(),
@@ -211,11 +208,65 @@ export default function BookingWizardPage() {
   const sectionCard = 'scroll-mt-32 rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 md:p-7';
 
   return (
-    <div className="min-h-screen w-full bg-surface pt-28">
+    <div className="relative isolate min-h-screen w-full overflow-hidden bg-surface pt-28">
       <div className="fixed left-0 right-0 top-0 z-[60] h-1 bg-surface-container-highest" aria-label="Form scroll progress">
         <div className="h-full transition-[width] duration-150" style={{ width: `${scrollProgress}%`, background: 'linear-gradient(to right, #f2ca50, #ffe088, #d2bbff)' }} />
       </div>
-      <div className="mx-auto w-full max-w-[1320px] px-4 py-5 md:px-12 md:py-10">
+
+      <style>{`
+        @keyframes booking-wizard-gold-drift {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(18px, -10px, 0); }
+        }
+
+        .booking-wizard-gold-ribbons {
+          animation: booking-wizard-gold-drift 22s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .booking-wizard-gold-ribbons { animation: none; }
+        }
+      `}</style>
+
+      {/* Subtle golden ribbons behind the booking wizard */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <svg
+          className="booking-wizard-gold-ribbons absolute -left-[18%] top-0 h-[760px] w-[136%] opacity-[0.28] md:h-[920px]"
+          viewBox="0 0 1600 1000"
+          fill="none"
+          preserveAspectRatio="xMidYMin slice"
+        >
+          <defs>
+            <linearGradient id="bookingWizardGoldRibbonA" x1="0" y1="0" x2="1500" y2="800" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#8F6826" stopOpacity="0" />
+              <stop offset="0.38" stopColor="#D6B46A" stopOpacity="0.72" />
+              <stop offset="0.62" stopColor="#F5CF65" stopOpacity="0.48" />
+              <stop offset="1" stopColor="#8F6826" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="bookingWizardGoldRibbonB" x1="100" y1="0" x2="1450" y2="900" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#F5CF65" stopOpacity="0" />
+              <stop offset="0.5" stopColor="#D6B46A" stopOpacity="0.42" />
+              <stop offset="1" stopColor="#F5CF65" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          <g strokeLinecap="round">
+            <path d="M-120 210C180 20 330 90 520 260C720 440 850 500 1080 330C1280 180 1420 180 1710 360" stroke="url(#bookingWizardGoldRibbonA)" strokeWidth="1.6" />
+            <path d="M-120 245C180 55 350 130 540 300C735 475 875 535 1100 365C1300 215 1450 220 1710 395" stroke="url(#bookingWizardGoldRibbonB)" strokeWidth="0.9" />
+            <path d="M-140 690C120 520 330 540 520 690C730 855 930 900 1130 730C1320 570 1490 590 1720 750" stroke="url(#bookingWizardGoldRibbonA)" strokeWidth="1.4" />
+            <path d="M-140 725C120 555 350 580 540 725C750 885 950 935 1150 765C1340 605 1510 625 1720 785" stroke="url(#bookingWizardGoldRibbonB)" strokeWidth="0.8" />
+            <path d="M210 -100C350 100 360 260 250 420C145 575 165 720 350 900" stroke="url(#bookingWizardGoldRibbonB)" strokeWidth="1" />
+            <path d="M1390 -100C1240 100 1230 260 1340 420C1450 580 1430 730 1250 900" stroke="url(#bookingWizardGoldRibbonA)" strokeWidth="1.2" />
+          </g>
+        </svg>
+
+        <div className="absolute -left-40 top-24 h-96 w-96 rounded-full bg-purple-700/[0.07] blur-[130px]" />
+        <div className="absolute -right-40 top-72 h-96 w-96 rounded-full bg-amber-500/[0.07] blur-[130px]" />
+        <div className="absolute -bottom-40 left-1/3 h-96 w-96 rounded-full bg-[#d6b46a]/[0.035] blur-[130px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-[1320px] px-4 py-5 md:px-12 md:py-10">
         <section className="mb-7">
           <div className="flex flex-col gap-4 border-b border-outline-variant/20 pb-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -275,7 +326,7 @@ export default function BookingWizardPage() {
             <div className="flex flex-col gap-5 lg:col-span-8">
               <section id="booking-section-1" className={sectionCard}>
                 <SectionHeading number={1} title="Occasion & Artist Type" description="Tell us what you're celebrating, where it is, and which performer you need." complete={occasionComplete} />
-                <Step1 eventType={eventType} setEventType={setEventType} otherEventType={otherEventType} setOtherEventType={setOtherEventType} city={city} setCity={setCity} artistType={artistType} setArtistType={setArtistType} otherArtistType={otherArtistType} setOtherArtistType={setOtherArtistType} selectedArtist={wizardData.selectedArtist} />
+                <Step1 eventType={eventType} setEventType={setEventType} otherEventType={otherEventType} setOtherEventType={setOtherEventType} city={city} setCity={setCity} artistType={artistType} setArtistType={setArtistType} otherArtistType={otherArtistType} setOtherArtistType={setOtherArtistType} />
                 {!occasionComplete && <p className="mt-4 text-[12px] text-on-surface-variant">Select an occasion, enter the city, and choose an artist type to unlock the next section.</p>}
               </section>
 
@@ -353,13 +404,12 @@ export default function BookingWizardPage() {
 // ============================
 // Step 1: Occasion & City
 // ============================
-function Step1({ eventType, setEventType, otherEventType, setOtherEventType, city, setCity, artistType, setArtistType, otherArtistType, setOtherArtistType, selectedArtist }: {
+function Step1({ eventType, setEventType, otherEventType, setOtherEventType, city, setCity, artistType, setArtistType, otherArtistType, setOtherArtistType }: {
   eventType: string; setEventType: (v: string) => void;
   otherEventType: string; setOtherEventType: (v: string) => void;
   city: string; setCity: (v: string) => void;
   artistType: string; setArtistType: (v: string) => void;
   otherArtistType: string; setOtherArtistType: (v: string) => void;
-  selectedArtist?: { professional_name: string; category: string; profile_pic: string };
 }) {
   return (
     <div className="flex flex-col gap-6">
@@ -384,7 +434,6 @@ function Step1({ eventType, setEventType, otherEventType, setOtherEventType, cit
           <datalist id="cities-list">{MAJOR_CITIES.map((c) => <option key={c} value={c} />)}</datalist>
         </div>
       </div>
-      {selectedArtist && <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 p-3"><img src={selectedArtist.profile_pic} alt={selectedArtist.professional_name} className="h-11 w-11 rounded-lg object-cover" /><div><p className="text-[13px] font-bold text-primary">Selected artist: {selectedArtist.professional_name}</p><p className="text-[12px] text-on-surface-variant">Category: {selectedArtist.category}</p></div></div>}
       <div>
         <div className="mb-3"><label className="font-bold text-[12px] uppercase tracking-wider text-on-surface">What type of artist are you looking for? *</label><p className="mt-1 text-[13px] text-on-surface-variant">Choose a category to unlock the budget section.</p></div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
