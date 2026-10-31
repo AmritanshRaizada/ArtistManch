@@ -103,7 +103,7 @@ export default function LandingPage() {
 
           {/* Supporting Copy */}
           <p className="text-[18px] md:text-[20px] text-on-surface-variant max-w-2xl mx-auto mb-12 leading-[28px] drop-shadow">
-            Discover handpicked vocalists, soulful sufi maestros, and dynamic live performers for royal weddings, private galas, corporate festivals, and life's most memorable moments.
+            Bring the wow to every celebration with verified live singers, soulful Sufi artists, and show-stopping performers—matched to your vibe, venue, and budget. From dream weddings and private parties to corporate events, ArtistManch helps you book the perfect artist and turn special moments into unforgettable memories.
           </p>
 
           {/* CTA Buttons */}
