@@ -139,7 +139,7 @@ ArtistManch brings exceptional singers, Sufi artists, and performers to weddings
               onClick={() => navigate('/browse')}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.35)] hover:scale-[1.03] transition-all"
             >
-              <span>Browse Specific Artiist</span>
+              <span>Browse Specific Artist</span>
               <span className="material-symbols-outlined text-[19px]">magic_button</span>
             </button>
             <button
