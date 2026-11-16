@@ -187,7 +187,7 @@ export default function Navbar() {
 
             <Link
               to="/booking"
-              className={`whitespace-nowrap text-[14px] transition-all px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-[0_0_15px_rgba(212,175,55,0.1)] ${isActive('/booking')}`}
+              className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3 xl:px-4 py-2.5 bg-primary text-black font-bold text-[12px] xl:text-[14px] rounded-xl shadow-gold hover:scale-[1.02] transition-all ${location.pathname === '/booking' ? 'ring-1 ring-primary/60' : ''}`}
             >
               Last-Minute Booking
             </Link>
@@ -249,7 +249,7 @@ export default function Navbar() {
 
             <Link
               to="/post-requirement"
-              className="hidden md:inline-flex items-center justify-center gap-1.5 px-3 xl:px-4 py-2.5 bg-primary text-on-primary font-bold text-[12px] xl:text-[14px] rounded-xl shadow-gold hover:scale-[1.02] transition-all whitespace-nowrap"
+              className="hidden md:inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-[14px] transition-all px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-[0_0_15px_rgba(212,175,55,0.1)]"
             >
               <span>Post Your Requirement</span>
               <span className="material-symbols-outlined text-[17px]">
@@ -394,10 +394,8 @@ export default function Navbar() {
 
             <Link
               to="/booking"
-              className={`my-1 mx-2 py-3 px-4 rounded-xl text-sm font-bold border border-primary/20 bg-primary/5 shadow-sm transition-all ${
-                location.pathname === '/booking'
-                  ? 'text-primary bg-primary/10 border-primary/40'
-                  : 'text-on-surface-variant hover:text-primary hover:bg-primary/10'
+              className={`my-1 mx-2 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold bg-primary text-black shadow-gold transition-all hover:scale-[1.01] ${
+                location.pathname === '/booking' ? 'ring-1 ring-primary/60' : ''
               }`}
               onClick={closeMenus}
             >
@@ -444,7 +442,7 @@ export default function Navbar() {
 
             <Link
               to="/post-requirement"
-              className="flex items-center justify-center gap-2 mt-2 py-3 px-4 rounded-xl bg-primary text-on-primary font-bold text-sm"
+              className="flex items-center justify-center gap-2 mt-2 py-3 px-4 rounded-xl text-sm font-bold border border-primary/25 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all"
               onClick={closeMenus}
             >
               Post Your Requirement
