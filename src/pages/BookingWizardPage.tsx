@@ -69,6 +69,8 @@ export default function BookingWizardPage() {
   const [otherArtistType, setOtherArtistType] = useState('');
   const [selectedBudget, setSelectedBudget] = useState<BudgetBracket | null>(wizardData.budget || null);
   const [couponCode, setCouponCode] = useState(wizardData.couponCode || '');
+  const [appliedCouponCode, setAppliedCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
   const [eventDate, setEventDate] = useState(wizardData.eventDate || '');
   const [eventTime, setEventTime] = useState(wizardData.eventTime || '');
   const [customerName, setCustomerName] = useState(wizardData.customerName || user?.displayName || '');
@@ -82,7 +84,11 @@ export default function BookingWizardPage() {
     if (offerSecondsLeft === null || offerSecondsLeft <= 0) return;
     const timer = window.setInterval(() => setOfferSecondsLeft((seconds) => {
       if (seconds === null) return null;
-      if (seconds <= 1) { setCouponCode(''); return 0; }
+      if (seconds <= 1) {
+        setCouponCode('');
+        setAppliedCouponCode('');
+        return 0;
+      }
       return seconds - 1;
     }), 1000);
     return () => window.clearInterval(timer);
@@ -110,7 +116,7 @@ export default function BookingWizardPage() {
   }, []);
 
 
-  const couponApplied = couponCode.trim().toUpperCase() === 'FIRST10' || couponCode.trim().toUpperCase() === 'FESTIVE10';
+  const couponApplied = appliedCouponCode === 'FIRST10' || appliedCouponCode === 'FESTIVE10';
   const advanceAmount = selectedBudget
     ? couponApplied ? selectedBudget.advanceFirst10 : selectedBudget.advanceStandard
     : 0;
@@ -122,11 +128,27 @@ export default function BookingWizardPage() {
   const dateComplete = Boolean(eventDate);
   const contactComplete = Boolean(
     customerName.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim()) &&
-    customerPhone.replace(/\D/g, '').length === 10 && termsAccepted
+    customerPhone.replace(/\D/g, '').length === 10 && venueAddress.trim().length > 0 && termsAccepted
   );
 
   function scrollToSection(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function handleApplyCoupon() {
+    const enteredCode = couponCode.trim().toUpperCase();
+
+    if (enteredCode !== 'FIRST10' && enteredCode !== 'FESTIVE10') {
+      setAppliedCouponCode('');
+      setOfferSecondsLeft(null);
+      setCouponError('Invalid coupon code. Please enter FIRST10 or FESTIVE10.');
+      return;
+    }
+
+    setCouponCode(enteredCode);
+    setAppliedCouponCode(enteredCode);
+    setCouponError('');
+    setOfferSecondsLeft(300);
   }
 
   function validateForm(): string {
@@ -138,6 +160,7 @@ export default function BookingWizardPage() {
     if (!customerName.trim()) return 'Please enter your full name.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) return 'Please enter a valid email address.';
     if (customerPhone.replace(/\D/g, '').length !== 10) return 'Please enter a valid 10-digit mobile number.';
+    if (!venueAddress.trim()) return 'Please enter the complete venue address.';
     if (!termsAccepted) return 'Please accept the Booking Terms & Conditions.';
     return '';
   }
@@ -163,7 +186,7 @@ export default function BookingWizardPage() {
       }
 
       const finalLeadId = leadId || generateLeadId();
-      const normalizedCoupon = couponCode.trim().toUpperCase();
+      const normalizedCoupon = couponApplied ? appliedCouponCode : '';
       const payload = {
         leadId: finalLeadId,
         submissionKey,
@@ -333,14 +356,27 @@ export default function BookingWizardPage() {
               {occasionComplete ? (
                 <section id="booking-section-2" className={sectionCard}>
                   <SectionHeading number={2} title="Choose Your Budget" description="Select the estimated artist budget that works for your event." complete={budgetComplete} />
-                  <Step3 selectedBudget={selectedBudget} setSelectedBudget={setSelectedBudget} />
+                  <Step3 selectedBudget={selectedBudget} setSelectedBudget={setSelectedBudget} couponApplied={couponApplied} />
                   <div className="mt-5 rounded-xl border border-outline-variant/20 bg-surface-container p-4">
                     <label htmlFor="booking-coupon" className="mb-2 block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Festive Coupon</label>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <input id="booking-coupon" value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="FESTIVE10" className="min-w-0 flex-1 rounded-lg border border-outline-variant/40 bg-surface-container-high px-3 py-2.5 text-[14px] text-on-surface outline-none focus:border-primary" />
-                      <button type="button" onClick={() => { setCouponCode('FESTIVE10'); setOfferSecondsLeft(300); }} className="rounded-lg bg-primary px-4 py-2.5 text-[13px] font-bold text-on-primary transition hover:opacity-90">Apply FESTIVE10</button>
+                      <input
+                        id="booking-coupon"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value.toUpperCase());
+                          setAppliedCouponCode('');
+                          setCouponError('');
+                          setOfferSecondsLeft(null);
+                        }}
+                        placeholder="Enter FIRST10 or FESTIVE10"
+                        aria-invalid={Boolean(couponError)}
+                        className="min-w-0 flex-1 rounded-lg border border-outline-variant/40 bg-surface-container-high px-3 py-2.5 text-[14px] text-on-surface outline-none focus:border-primary"
+                      />
+                      <button type="button" onClick={handleApplyCoupon} className="rounded-lg bg-primary px-4 py-2.5 text-[13px] font-bold text-on-primary transition hover:opacity-90">Apply Coupon</button>
                     </div>
-                    {couponApplied && <p className="mt-2 text-[12px] font-semibold text-primary">Coupon applied. Your estimated advance has been updated.</p>}
+                    {couponError && <p role="alert" className="mt-2 text-[12px] font-semibold text-error">{couponError}</p>}
+                    {couponApplied && <p className="mt-2 text-[12px] font-semibold text-primary">{appliedCouponCode} applied successfully. Your estimated advance has been updated.</p>}
                   </div>
                 </section>
               ) : <LockedSection number={2} title="Choose Your Budget" description="Complete Occasion & Artist Type to unlock budget options." />}
@@ -368,7 +404,7 @@ export default function BookingWizardPage() {
                       ['Budget', selectedBudget.displayLabel], ['Event date', eventDate],
                       ['Showtime', eventTime || 'Not specified'], ['Name', customerName],
                       ['Email', customerEmail], ['Mobile', `+91 ${customerPhone}`],
-                      ['Venue', venueAddress || 'To be confirmed'],
+                      ['Venue', venueAddress.trim()],
                     ].map(([label, value]) => <div key={label} className="rounded-lg bg-surface-container p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">{label}</p><p className="mt-1 break-words text-[14px] font-semibold text-on-surface">{value}</p></div>)}
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-primary/25 bg-primary/10 p-4">
@@ -390,7 +426,7 @@ export default function BookingWizardPage() {
                 <div><p className="text-[12px] text-on-surface-variant">Selected budget</p><p className="mt-1 text-[20px] font-bold text-on-surface">{selectedBudget?.displayLabel || 'Not selected'}</p></div>
                 <div className="flex items-center justify-between border-t border-outline-variant/20 pt-3 text-[13px]"><span className="text-on-surface-variant">Standard advance (20%)</span><span className="font-bold text-on-surface">₹{selectedBudget ? selectedBudget.advanceStandard.toLocaleString('en-IN') : '—'}</span></div>
                 <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3"><div><p className="text-[12px] text-on-surface-variant">Your estimated advance</p><p className="mt-1 font-playfair text-[26px] font-bold text-primary">₹{selectedBudget ? advanceAmount.toLocaleString('en-IN') : '—'}</p></div><span className="material-symbols-outlined text-[24px] text-primary">payments</span></div>
-                <p className="text-[12px] text-on-surface-variant">{couponApplied ? 'FESTIVE10 / FIRST10 rate is reflected in the estimate.' : 'Apply FESTIVE10 to unlock the festive advance estimate and start the 5-minute timer.'}</p>
+                <p className="text-[12px] text-on-surface-variant">{couponApplied ? `${appliedCouponCode} discount is reflected in the estimate.` : 'Apply FIRST10 or FESTIVE10 to unlock the discounted advance and start the 5-minute timer.'}</p>
                 <div className="space-y-2 border-t border-outline-variant/20 pt-4">{['Your enquiry is saved securely', 'Artist availability is confirmed separately', 'Payment instructions follow review'].map((item) => <div key={item} className="flex items-start gap-2 text-[12px] text-on-surface-variant"><span className="material-symbols-outlined text-[16px] text-primary">check_circle</span><span>{item}</span></div>)}</div>
               </div>
             </aside>
@@ -449,8 +485,9 @@ function Step1({ eventType, setEventType, otherEventType, setOtherEventType, cit
 // ============================
 // Step 3: Budget
 // ============================
-function Step3({ selectedBudget, setSelectedBudget }: {
+function Step3({ selectedBudget, setSelectedBudget, couponApplied }: {
   selectedBudget: BudgetBracket | null; setSelectedBudget: (b: BudgetBracket) => void;
+  couponApplied: boolean;
 }) {
   return (
     <div className="flex flex-col gap-6">
@@ -460,7 +497,7 @@ function Step3({ selectedBudget, setSelectedBudget }: {
         </div>
         <div>
           <p className="font-semibold text-[18px] text-on-surface font-bold">Advance = 20% of the lower budget limit</p>
-          <p className="text-[13px] text-on-surface-variant">First booking? Use <strong className="text-primary tracking-wide">FIRST10</strong> to cut advance to 10%!</p>
+          <p className="text-[13px] text-on-surface-variant">{couponApplied ? 'Your coupon discount is active. The discounted advance is shown below.' : 'Apply FIRST10 or FESTIVE10 below to unlock the 10% advance offer.'}</p>
         </div>
       </div>
 
@@ -494,7 +531,7 @@ function Step3({ selectedBudget, setSelectedBudget }: {
                 <div className="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between">
                   <div>
                     <span className="font-bold text-[11px] text-on-surface-variant block">Advance: ₹{bracket.advanceStandard.toLocaleString('en-IN')}</span>
-                    <span className="font-bold text-[12px] text-primary">With FIRST10: ₹{bracket.advanceFirst10.toLocaleString('en-IN')}</span>
+                    {couponApplied && <span className="mt-1 block font-bold text-[12px] text-primary">With coupon: ₹{bracket.advanceFirst10.toLocaleString('en-IN')}</span>}
                   </div>
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center ${isSelected ? 'bg-primary text-on-primary' : 'border border-outline-variant text-on-surface'}`}>
                     {isSelected && <span className="material-symbols-outlined text-[16px]">check</span>}
@@ -674,15 +711,18 @@ function Step6({
 
         {/* Venue Address */}
         <div className="flex flex-col gap-1">
-          <label className="font-bold text-[12px] text-on-surface-variant" htmlFor="venue-address">Complete Venue Address (Optional)</label>
+          <label className="font-bold text-[12px] text-on-surface-variant" htmlFor="venue-address">Complete Venue Address <span className="text-primary">*</span></label>
           <textarea
             id="venue-address"
+            required
+            aria-required="true"
             value={venueAddress}
             onChange={(e) => setVenueAddress(e.target.value)}
-            placeholder="The Grand Ballroom, Hotel Name, Address, Pincode. Stage: 24ft x 16ft..."
+            placeholder="Enter venue name, complete address, area, city and pincode..."
             rows={3}
             className="w-full bg-surface-container border border-outline-variant/40 rounded-lg p-3 text-on-surface text-[15px] focus:border-primary focus:outline-none transition-all"
           />
+          <p className="text-[11px] text-on-surface-variant">Required for artist availability, travel and event logistics.</p>
         </div>
 
         {/* Privacy Note */}

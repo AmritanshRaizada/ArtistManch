@@ -34,7 +34,7 @@ export default function LandingPage() {
           preload="metadata"
           className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0 select-none motion-reduce:hidden"
         >
-          <source src="/video/hero-background.mp4" type="video/mp4" />
+          <source src="/video/hero-background1.mp4" type="video/mp4" />
         </video>
 
         {/* Layered Overlays for High Text Contrast & Cinematic Aesthetics */}
