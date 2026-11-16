@@ -15,6 +15,7 @@ export default function Navbar() {
   const [forArtistsDropdownOpen, setForArtistsDropdownOpen] = useState(false);
   const [mobileArtistsOpen, setMobileArtistsOpen] = useState(false);
   const [mobileForArtistsOpen, setMobileForArtistsOpen] = useState(false);
+  const [whatsappOpen, setWhatsappOpen] = useState(false);
 
   const isActive = (path: string) =>
     location.pathname === path
@@ -515,6 +516,59 @@ export default function Navbar() {
           ))}
         </div>
       </aside>
+
+      {/* Floating WhatsApp Contact Menu */}
+      <div
+        className="fixed bottom-5 right-5 z-[150] flex flex-col items-end gap-3"
+        onMouseEnter={() => setWhatsappOpen(true)}
+        onMouseLeave={() => setWhatsappOpen(false)}
+      >
+        {whatsappOpen && (
+          <div className="flex min-w-[190px] flex-col gap-2 rounded-2xl border border-white/10 bg-[#17151d]/95 p-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+            <a
+              href="https://wa.me/918810321546?text=Hi%20ArtistManch%2C%20I%20am%20an%20artist%20and%20would%20like%20to%20connect."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              onClick={() => setWhatsappOpen(false)}
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366]">
+                <span className="material-symbols-outlined">music_note</span>
+              </span>
+              <span>For Artists</span>
+            </a>
+
+            <a
+              href="https://wa.me/917303195782?text=Hi%20ArtistManch%2C%20I%20need%20help%20with%20an%20artist%20booking."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              onClick={() => setWhatsappOpen(false)}
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366]">
+                <span className="material-symbols-outlined">person</span>
+              </span>
+              <span>For Users</span>
+            </a>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setWhatsappOpen((open) => !open)}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_28px_rgba(37,211,102,0.4)] transition-all duration-200 hover:scale-110 hover:bg-[#20bd5a] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#25D366]/40"
+          aria-label={whatsappOpen ? "Close WhatsApp contact options" : "Open WhatsApp contact options"}
+          aria-expanded={whatsappOpen}
+        >
+          <svg
+            viewBox="0 0 32 32"
+            className="h-8 w-8 fill-current"
+            aria-hidden="true"
+          >
+            <path d="M16.02 3C8.86 3 3.04 8.78 3.04 15.9c0 2.28.6 4.5 1.74 6.47L3 29l6.82-1.78a13.1 13.1 0 0 0 6.2 1.56h.01c7.15 0 12.97-5.79 12.97-12.9 0-3.45-1.35-6.69-3.8-9.13A12.9 12.9 0 0 0 16.02 3Zm0 23.58h-.01a10.7 10.7 0 0 1-5.45-1.49l-.39-.23-4.05 1.06 1.08-3.94-.25-.4a10.58 10.58 0 0 1-1.63-5.68c0-5.88 4.83-10.66 10.7-10.66 2.84 0 5.52 1.1 7.53 3.12a10.55 10.55 0 0 1 3.13 7.54c0 5.88-4.82 10.68-10.66 10.68Zm5.87-7.99c-.32-.16-1.9-.94-2.2-1.05-.3-.11-.51-.16-.73.16-.21.32-.83 1.05-1.02 1.27-.19.21-.38.24-.7.08-.32-.16-1.35-.5-2.57-1.58-.95-.84-1.59-1.88-1.78-2.2-.19-.32-.02-.49.14-.65.14-.14.32-.38.48-.57.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.73-1.75-1-2.4-.26-.62-.53-.54-.73-.55h-.62c-.21 0-.56.08-.86.4-.3.32-1.13 1.1-1.13 2.69s1.16 3.12 1.32 3.34c.16.21 2.28 3.47 5.52 4.87.77.33 1.37.53 1.84.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.13-.3-.21-.62-.37Z" />
+          </svg>
+        </button>
+      </div>
     </header>
   );
 }
