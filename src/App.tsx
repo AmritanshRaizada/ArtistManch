@@ -1,5 +1,6 @@
 
 import { useEffect, useRef } from 'react';
+
 import {
   BrowserRouter,
   Routes,
@@ -8,13 +9,20 @@ import {
   useLocation,
 } from 'react-router-dom';
 
+// Context providers
 import { AuthProvider } from './contexts/AuthContext';
+import { AdminAuthProvider } from './contexts/AdminAuthContext';
 import { BookingProvider } from './contexts/BookingContext';
 
+// Public layout components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 
+// Admin route protection
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+
+// Public pages
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -26,6 +34,12 @@ import EventQuoteForm from './pages/PostYourRequirement';
 import ArtistFAQPage from './pages/ArtistFAQPage';
 import ContactUsPage from './pages/ContactUsPage';
 import ArtistBookingPage from './pages/ArtistBookingPage';
+import ArtistProfilePage from './pages/ArtistProfilePage';
+
+// Admin pages
+import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminArtistsPage from './pages/admin/AdminArtistsPage';
+import AdminArtistFormPage from './pages/admin/AdminArtistFormPage';
 
 // Meta Pixel type declaration
 declare global {
@@ -37,6 +51,7 @@ declare global {
 // Track page views whenever React Router navigation occurs
 function MetaPixelTracker() {
   const location = useLocation();
+
   const lastTrackedPage = useRef<string | null>(null);
 
   useEffect(() => {
@@ -53,47 +68,158 @@ function MetaPixelTracker() {
   return null;
 }
 
+// Main application layout
+function AppLayout() {
+  const location = useLocation();
+
+  // Admin pages use their own standalone layout
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-on-surface">
+
+      {/* Hide public Navbar on admin pages */}
+      {!isAdminRoute && <Navbar />}
+
+      <main className="flex-1">
+        <Routes>
+
+          {/* ================================== */}
+          {/* ADMIN LOGIN */}
+          {/* ================================== */}
+
+          <Route
+            path="/admin/login"
+            element={<AdminLoginPage />}
+          />
+
+          {/* ================================== */}
+          {/* PROTECTED ADMIN DASHBOARD */}
+          {/* ================================== */}
+
+          <Route element={<AdminProtectedRoute />}>
+
+            <Route
+              path="/admin"
+              element={<AdminArtistsPage />}
+            />
+
+            <Route
+              path="/admin/artists/new"
+              element={<AdminArtistFormPage />}
+            />
+
+            <Route
+              path="/admin/artists/:id/edit"
+              element={<AdminArtistFormPage />}
+            />
+
+          </Route>
+
+          {/* ================================== */}
+          {/* PUBLIC WEBSITE ROUTES */}
+          {/* ================================== */}
+
+          <Route
+            path="/"
+            element={<LandingPage />}
+          />
+<Route
+  path="/artist/:slug"
+  element={<ArtistProfilePage />}
+/>
+          <Route
+            path="/login"
+            element={<LoginPage />}
+          />
+
+          <Route
+            path="/signup"
+            element={<SignupPage />}
+          />
+
+          <Route
+            path="/browse"
+            element={<BrowseArtistsPage />}
+          />
+
+          <Route
+            path="/booking"
+            element={<BookingWizardPage />}
+          />
+
+          <Route
+            path="/artist-booking"
+            element={<ArtistBookingPage />}
+          />
+
+          <Route
+            path="/join"
+            element={<JoinAsArtistPage />}
+          />
+
+          <Route
+            path="/post-requirement"
+            element={<EventQuoteForm />}
+          />
+
+          <Route
+            path="/artist-faq"
+            element={<ArtistFAQPage />}
+          />
+
+          <Route
+            path="/contact"
+            element={<ContactUsPage />}
+          />
+
+          {/* ================================== */}
+          {/* CUSTOMER DASHBOARD */}
+          {/* ================================== */}
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ================================== */}
+          {/* CATCH-ALL FALLBACK */}
+          {/* ================================== */}
+
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
+
+        </Routes>
+      </main>
+
+      {/* Hide public Footer on admin pages */}
+      {!isAdminRoute && <Footer />}
+
+    </div>
+  );
+}
+
+// Root application
 export default function App() {
   return (
     <BrowserRouter>
+
       <MetaPixelTracker />
 
       <AuthProvider>
-        <BookingProvider>
-          <div className="min-h-screen flex flex-col bg-background text-on-surface">
-            <Navbar />
-
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                <Route path="/browse" element={<BrowseArtistsPage />} />
-                <Route path="/booking" element={<BookingWizardPage />} />
-                <Route path="/artist-booking" element={<ArtistBookingPage />} />
-                <Route path="/join" element={<JoinAsArtistPage />} />
-                <Route path="/post-requirement" element={<EventQuoteForm />} />
-                <Route path="/artist-faq" element={<ArtistFAQPage />} />
-                <Route path="/contact" element={<ContactUsPage />} />
-
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Catch-all fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-
-            <Footer />
-          </div>
-        </BookingProvider>
+        <AdminAuthProvider>
+          <BookingProvider>
+            <AppLayout />
+          </BookingProvider>
+        </AdminAuthProvider>
       </AuthProvider>
+
     </BrowserRouter>
   );
 }
