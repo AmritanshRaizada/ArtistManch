@@ -48,8 +48,6 @@ type Tab = 'overview' | 'photos' | 'videos';
 const money = (amount = 0) =>
   `₹${Number(amount).toLocaleString('en-IN')}`;
 
-const cleanPhone = (value = '') => value.replace(/\D/g, '');
-
 export default function ArtistProfilePage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -144,12 +142,12 @@ export default function ArtistProfilePage() {
 
   const WHATSAPP_NUMBER = '917303195782';
 
-const whatsappUrl = artist
-  ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-      artist.whatsapp_message ||
-        `Hello, I would like to enquire about booking ${artist.professional_name}.`
-    )}`
-  : '';
+  const whatsappUrl = artist
+    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        artist.whatsapp_message ||
+          `Hello, I would like to enquire about booking ${artist.professional_name}.`
+      )}`
+    : '';
 
   function bookArtist() {
     if (!artist) return;
@@ -212,9 +210,7 @@ const whatsappUrl = artist
           </Link>
 
           <span>/</span>
-
           <span>{artist.category}</span>
-
           <span>/</span>
 
           <span className="font-semibold text-amber-300">
@@ -592,20 +588,18 @@ const whatsappUrl = artist
             </p>
           </div>
 
-          
-{artist.booking_enabled !== false && (
-  <button
-    onClick={() => {
-      navigate(
-        `/post-requirement?artist=${encodeURIComponent(artist.professional_name)}&category=${encodeURIComponent(artist.category)}`
-      );
-    }}
-    className="shrink-0 rounded-full bg-[#edbd4e] px-7 py-4 text-sm font-bold text-black transition hover:brightness-110"
-  >
-    Enquire Now →
-  </button>
-)}
-
+          {artist.booking_enabled !== false && (
+            <button
+              onClick={() => {
+                navigate(
+                  `/post-requirement?artist=${encodeURIComponent(artist.professional_name)}&category=${encodeURIComponent(artist.category)}`
+                );
+              }}
+              className="shrink-0 rounded-full bg-[#edbd4e] px-7 py-4 text-sm font-bold text-black transition hover:brightness-110"
+            >
+              Enquire Now →
+            </button>
+          )}
         </div>
       </section>
 
