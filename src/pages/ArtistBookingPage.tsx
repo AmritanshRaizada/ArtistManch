@@ -23,18 +23,6 @@ const BUDGET_MILESTONES = [
 const MIN_BUDGET = BUDGET_MILESTONES[0];
 const MAX_BUDGET = BUDGET_MILESTONES[BUDGET_MILESTONES.length - 1];
 
-const BUDGET_MILESTONE_LABELS = [
-  '₹0',
-  '₹10K',
-  '₹50K',
-  '₹5L',
-  '₹25L',
-  '₹50L',
-  '₹1Cr',
-  '₹5Cr',
-  '₹10Cr',
-];
-
 function formatINR(value: number) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -629,23 +617,6 @@ export default function ArtistBookingPage() {
               onChange={e => updateBudgetFromSlider(Number(e.target.value))}
               className="h-7 w-full cursor-pointer touch-pan-x accent-[#e8bd62]"
             />
-            <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
-              {BUDGET_MILESTONE_LABELS.map((label, index) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => updateBudgetFromSlider(index)}
-                  aria-label={`Set budget to ${formatINR(BUDGET_MILESTONES[index])}`}
-                  className={`min-h-9 rounded-lg px-1 py-2 text-[10px] font-semibold transition sm:min-h-0 sm:rounded-md sm:py-1 sm:text-[10px] ${
-                    getBudgetMilestoneIndex(budget) === index
-                      ? 'bg-[#d6b46a]/15 text-[#f5cf65]'
-                      : 'text-white/40 hover:text-white/75'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
           </div>
           <div className="mt-4 flex flex-col gap-2">
             <label className="text-xs text-white/55" htmlFor="custom-budget">Or enter a custom amount</label>

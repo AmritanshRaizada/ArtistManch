@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInAnonymously } from 'firebase/auth';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooking } from '../contexts/BookingContext';
 import { ARTIST_TYPES, EVENT_TYPES, MAJOR_CITIES, BUDGET_BRACKETS } from '../data/artists';
@@ -7,6 +10,13 @@ import type { BudgetBracket } from '../types';
 
 function generateSubmissionKey(): string {
   return `sk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function generateLeadId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = 'AM-';
+  for (let i = 0; i < 8; i++) result += chars[Math.floor(Math.random() * chars.length)];
+  return result;
 }
 
 
@@ -47,6 +57,7 @@ export default function BookingWizardPage() {
   const navigate = useNavigate();
 
   const [saveError, setSaveError] = useState('');
+  const [savingReview, setSavingReview] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [offerSecondsLeft, setOfferSecondsLeft] = useState<number | null>(null);
 
@@ -153,11 +164,11 @@ export default function BookingWizardPage() {
     return '';
   }
 
-  function handleReview() {
-    const error = validateForm();
+  async function handleReview() {
+    const validationError = validateForm();
 
-    if (error) {
-      setSaveError(error);
+    if (validationError) {
+      setSaveError(validationError);
       if (!occasionComplete) scrollToSection('booking-section-1');
       else if (!budgetComplete) scrollToSection('booking-section-2');
       else if (!dateComplete) scrollToSection('booking-section-3');
@@ -165,25 +176,74 @@ export default function BookingWizardPage() {
       return;
     }
 
+    if (savingReview) return;
+
+    setSavingReview(true);
     setSaveError('');
 
-    updateWizard({
-      eventType: resolvedEventType,
-      city: city.trim(),
-      artistType: resolvedArtistType,
-      budget: selectedBudget || undefined,
-      couponCode: couponApplied ? appliedCouponCode : '',
-      eventDate,
-      eventTime,
-      customerName: customerName.trim(),
-      customerEmail: customerEmail.trim(),
-      customerPhone: customerPhone.replace(/\D/g, ''),
-      venueAddress: venueAddress.trim(),
-      termsAccepted,
-      submissionKey,
-    });
+    try {
+      let bookingUser = auth.currentUser;
+      if (!bookingUser) {
+        const credential = await signInAnonymously(auth);
+        bookingUser = credential.user;
+      }
 
-    navigate('/booking-review');
+      const leadId = wizardData.leadId || generateLeadId();
+      const existingSubmissionKey = wizardData.submissionKey || submissionKey;
+      const normalizedPhone = customerPhone.replace(/\D/g, '');
+      const nowPayload = {
+        leadId,
+        submissionKey: existingSubmissionKey,
+        uid: bookingUser.uid,
+        artistType: resolvedArtistType,
+        eventType: resolvedEventType,
+        city: city.trim(),
+        budgetLabel: selectedBudget!.displayLabel,
+        budgetLower: selectedBudget!.lower,
+        budgetUpper: selectedBudget!.upper,
+        couponCode: couponApplied ? appliedCouponCode : null,
+        advanceAmount,
+        eventDate: eventDate || null,
+        eventTime: eventTime || null,
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+        customerPhone: normalizedPhone,
+        venueAddress: venueAddress.trim(),
+        status: 'enquiry_saved',
+        updatedAt: serverTimestamp(),
+        ...(!wizardData.leadId ? { createdAt: serverTimestamp() } : {}),
+      };
+
+      await setDoc(
+        doc(collection(db, 'leads'), existingSubmissionKey),
+        nowPayload,
+        { merge: true }
+      );
+
+      updateWizard({
+        eventType: resolvedEventType,
+        city: city.trim(),
+        artistType: resolvedArtistType,
+        budget: selectedBudget || undefined,
+        couponCode: couponApplied ? appliedCouponCode : '',
+        eventDate,
+        eventTime,
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+        customerPhone: normalizedPhone,
+        venueAddress: venueAddress.trim(),
+        termsAccepted,
+        submissionKey: existingSubmissionKey,
+        leadId,
+      });
+
+      navigate('/booking-review');
+    } catch (err) {
+      console.error('Booking review save failed:', err);
+      setSaveError('We could not save your enquiry. Please check your connection and try again. Your details are still on this page.');
+    } finally {
+      setSavingReview(false);
+    }
   }
 
   const sectionCard = 'scroll-mt-32 rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 md:p-7';
@@ -353,13 +413,14 @@ export default function BookingWizardPage() {
                   <button
                     type="button"
                     onClick={handleReview}
-                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-[15px] font-bold text-on-primary shadow-gold transition hover:scale-[1.01]"
+                    disabled={savingReview}
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-[15px] font-bold text-on-primary shadow-gold transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Review Booking
+                    {savingReview ? 'Saving Enquiry…' : 'Review Booking'}
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </button>
                   <p className="mt-3 text-center text-[12px] text-on-surface-variant">
-                    Your enquiry will not be submitted until you confirm it on the review page.
+                    Your enquiry is saved when you continue. Confirming on the next page displays your Lead ID.
                   </p>
                 </section>
               ) : (
