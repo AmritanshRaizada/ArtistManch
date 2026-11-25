@@ -147,7 +147,7 @@ ArtistManch brings exceptional singers, Sufi artists, and performers to weddings
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-container-high/80 backdrop-blur-md text-on-surface font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl hover:bg-surface-variant hover:text-primary transition-all shadow-md border border-outline-variant/30"
             >
               <span className="material-symbols-outlined text-secondary text-[19px]">graphic_eq</span>
-              <span>Find the Right Artist for My Event</span>
+              <span>Last Minute Booking</span>
             </button>
           </div>
 
