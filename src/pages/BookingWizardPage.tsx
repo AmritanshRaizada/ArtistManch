@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInAnonymously } from 'firebase/auth';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooking } from '../contexts/BookingContext';
 import { ARTIST_TYPES, EVENT_TYPES, MAJOR_CITIES, BUDGET_BRACKETS } from '../data/artists';
@@ -12,12 +9,6 @@ function generateSubmissionKey(): string {
   return `sk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-function generateLeadId(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'AM-';
-  for (let i = 0; i < 8; i++) result += chars[Math.floor(Math.random() * chars.length)];
-  return result;
-}
 
 function LockedSection({ number, title, description }: { number: number; title: string; description: string }) {
   return (
@@ -55,10 +46,7 @@ export default function BookingWizardPage() {
   const { wizardData, updateWizard } = useBooking();
   const navigate = useNavigate();
 
-  const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [leadId, setLeadId] = useState(wizardData.leadId || '');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [offerSecondsLeft, setOfferSecondsLeft] = useState<number | null>(null);
 
@@ -69,7 +57,7 @@ export default function BookingWizardPage() {
   const [otherArtistType, setOtherArtistType] = useState('');
   const [selectedBudget, setSelectedBudget] = useState<BudgetBracket | null>(wizardData.budget || null);
   const [couponCode, setCouponCode] = useState(wizardData.couponCode || '');
-  const [appliedCouponCode, setAppliedCouponCode] = useState('');
+  const [appliedCouponCode, setAppliedCouponCode] = useState(wizardData.couponCode || '');
   const [couponError, setCouponError] = useState('');
   const [eventDate, setEventDate] = useState(wizardData.eventDate || '');
   const [eventTime, setEventTime] = useState(wizardData.eventTime || '');
@@ -77,7 +65,7 @@ export default function BookingWizardPage() {
   const [customerEmail, setCustomerEmail] = useState(wizardData.customerEmail || user?.email || '');
   const [customerPhone, setCustomerPhone] = useState(wizardData.customerPhone || '');
   const [venueAddress, setVenueAddress] = useState(wizardData.venueAddress || '');
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(wizardData.termsAccepted || false);
   const [submissionKey] = useState(wizardData.submissionKey || generateSubmissionKey());
 
   useEffect(() => {
@@ -165,8 +153,9 @@ export default function BookingWizardPage() {
     return '';
   }
 
-  async function handleSubmit() {
+  function handleReview() {
     const error = validateForm();
+
     if (error) {
       setSaveError(error);
       if (!occasionComplete) scrollToSection('booking-section-1');
@@ -177,55 +166,24 @@ export default function BookingWizardPage() {
     }
 
     setSaveError('');
-    setSaving(true);
-    try {
-      let bookingUser = auth.currentUser;
-      if (!bookingUser) {
-        const credential = await signInAnonymously(auth);
-        bookingUser = credential.user;
-      }
 
-      const finalLeadId = leadId || generateLeadId();
-      const normalizedCoupon = couponApplied ? appliedCouponCode : '';
-      const payload = {
-        leadId: finalLeadId,
-        submissionKey,
-        uid: bookingUser.uid,
-        artistType: resolvedArtistType,
-        eventType: resolvedEventType,
-        city: city.trim(),
-        budgetLabel: selectedBudget!.displayLabel,
-        budgetLower: selectedBudget!.lower,
-        budgetUpper: selectedBudget!.upper,
-        couponCode: normalizedCoupon || null,
-        advanceAmount,
-        eventDate: eventDate || null,
-        eventTime: eventTime || null,
-        customerName: customerName.trim(),
-        customerEmail: customerEmail.trim(),
-        customerPhone: customerPhone.replace(/\D/g, ''),
-        venueAddress: venueAddress.trim() || null,
-        status: 'enquiry_saved',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
+    updateWizard({
+      eventType: resolvedEventType,
+      city: city.trim(),
+      artistType: resolvedArtistType,
+      budget: selectedBudget || undefined,
+      couponCode: couponApplied ? appliedCouponCode : '',
+      eventDate,
+      eventTime,
+      customerName: customerName.trim(),
+      customerEmail: customerEmail.trim(),
+      customerPhone: customerPhone.replace(/\D/g, ''),
+      venueAddress: venueAddress.trim(),
+      termsAccepted,
+      submissionKey,
+    });
 
-      await setDoc(doc(collection(db, 'leads'), submissionKey), payload, { merge: true });
-      updateWizard({
-        eventType: resolvedEventType, city, artistType: resolvedArtistType, budget: selectedBudget || undefined, couponCode: normalizedCoupon,
-        eventDate, eventTime, customerName: customerName.trim(),
-        customerEmail: customerEmail.trim(), customerPhone: customerPhone.replace(/\D/g, ''),
-        venueAddress, termsAccepted, submissionKey, leadId: finalLeadId,
-      });
-      setLeadId(finalLeadId);
-      setSubmitted(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
-      console.error('Firestore save error:', err);
-      setSaveError('We could not save your enquiry. Please check your connection and try again. Your form details are still here.');
-    } finally {
-      setSaving(false);
-    }
+    navigate('/booking-review');
   }
 
   const sectionCard = 'scroll-mt-32 rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 md:p-7';
@@ -326,26 +284,7 @@ export default function BookingWizardPage() {
           </div>
         )}
 
-        {submitted ? (
-          <div className="mx-auto flex max-w-2xl flex-col items-center gap-5 rounded-2xl border border-primary/30 bg-surface-container-low p-7 py-10 text-center md:p-12">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
-              <span className="material-symbols-outlined text-[42px] text-primary">celebration</span>
-            </div>
-            <div>
-              <h2 className="mb-2 font-playfair text-[34px] font-bold text-on-surface">Enquiry <span className="text-primary">Submitted!</span></h2>
-              <p className="text-[15px] leading-6 text-on-surface-variant">Your enquiry has been saved successfully. The ArtistManch team will contact you to coordinate artist availability and advance payment.</p>
-            </div>
-            <div className="rounded-xl border border-primary/20 bg-surface-container px-6 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Your Lead ID</p>
-              <p className="mt-1 text-[20px] font-bold tracking-wider text-primary">{leadId}</p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => navigate('/dashboard')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-[14px] font-bold text-on-primary shadow-gold transition hover:scale-[1.02]">View My Bookings <span className="material-symbols-outlined text-[18px]">arrow_forward</span></button>
-              <a href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}?text=${encodeURIComponent(`Hi, I've submitted a booking enquiry on ArtistManch. My Lead ID is ${leadId}. Please help me with the next steps.`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-[14px] font-bold text-white" style={{ background: '#25D366' }}><span className="material-symbols-outlined">chat</span> Contact on WhatsApp</a>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
             <div className="flex flex-col gap-5 lg:col-span-8">
               <section id="booking-section-1" className={sectionCard}>
                 <SectionHeading number={1} title="Occasion & Artist Type" description="Tell us what you're celebrating, where it is, and which performer you need." complete={occasionComplete} />
@@ -397,26 +336,39 @@ export default function BookingWizardPage() {
 
               {contactComplete && selectedBudget ? (
                 <section id="booking-section-5" className={sectionCard}>
-                  <SectionHeading number={5} title="Review & Submit Enquiry" description="Check your booking details and submit your enquiry when you're ready." complete={false} />
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {[
-                      ['Occasion', resolvedEventType], ['City', city], ['Artist type', resolvedArtistType],
-                      ['Budget', selectedBudget.displayLabel], ['Event date', eventDate],
-                      ['Showtime', eventTime || 'Not specified'], ['Name', customerName],
-                      ['Email', customerEmail], ['Mobile', `+91 ${customerPhone}`],
-                      ['Venue', venueAddress.trim()],
-                    ].map(([label, value]) => <div key={label} className="rounded-lg bg-surface-container p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">{label}</p><p className="mt-1 break-words text-[14px] font-semibold text-on-surface">{value}</p></div>)}
+                  <SectionHeading
+                    number={5}
+                    title="Review Your Booking"
+                    description="Your details are ready. Continue to the separate review page to verify everything."
+                    complete={false}
+                  />
+                  <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
+                    <p className="text-sm font-semibold text-on-surface">
+                      All required details completed!
+                    </p>
+                    <p className="mt-1 text-xs text-on-surface-variant">
+                      You can review every detail on the next page before submitting your enquiry.
+                    </p>
                   </div>
-                  <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-primary/25 bg-primary/10 p-4">
-                    <div><p className="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Estimated advance</p><p className="mt-1 font-playfair text-[30px] font-bold text-primary">₹{advanceAmount.toLocaleString('en-IN')}</p><p className="text-[12px] text-on-surface-variant">{couponApplied ? '10% advance with coupon' : 'Standard 20% advance'}. Payment is coordinated after the enquiry is reviewed.</p></div>
-                    <span className="material-symbols-outlined text-[30px] text-primary">receipt_long</span>
-                  </div>
-                  <button type="button" onClick={handleSubmit} disabled={saving} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-[15px] font-bold text-on-primary shadow-gold transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">
-                    {saving ? <><span className="material-symbols-outlined animate-spin">progress_activity</span> Saving your enquiry...</> : <>Submit Booking Enquiry <span className="material-symbols-outlined">arrow_forward</span></>}
+                  <button
+                    type="button"
+                    onClick={handleReview}
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-[15px] font-bold text-on-primary shadow-gold transition hover:scale-[1.01]"
+                  >
+                    Review Booking
+                    <span className="material-symbols-outlined">arrow_forward</span>
                   </button>
-                  <p className="mt-3 text-center text-[12px] text-on-surface-variant">Submitting saves your enquiry; it does not charge your card or confirm artist availability.</p>
+                  <p className="mt-3 text-center text-[12px] text-on-surface-variant">
+                    Your enquiry will not be submitted until you confirm it on the review page.
+                  </p>
                 </section>
-              ) : <LockedSection number={5} title="Review & Submit Enquiry" description="Complete your required contact details and accept the terms to review and submit." />}
+              ) : (
+                <LockedSection
+                  number={5}
+                  title="Review Your Booking"
+                  description="Complete your required contact details and accept the terms to continue."
+                />
+              )}
             </div>
 
             <aside className="lg:sticky lg:top-28 lg:col-span-4">
@@ -431,7 +383,6 @@ export default function BookingWizardPage() {
               </div>
             </aside>
           </div>
-        )}
       </div>
     </div>
   );

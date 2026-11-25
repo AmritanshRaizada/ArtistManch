@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 
 import {
@@ -28,6 +27,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import BrowseArtistsPage from './pages/BrowseArtistsPage';
 import BookingWizardPage from './pages/BookingWizardPage';
+import BookingReviewPage from './pages/BookingReviewPage';
 import JoinAsArtistPage from './pages/JoinAsArtistPage';
 import DashboardPage from './pages/DashboardPage';
 import EventQuoteForm from './pages/PostYourRequirement';
@@ -51,17 +51,12 @@ declare global {
 // Track page views whenever React Router navigation occurs
 function MetaPixelTracker() {
   const location = useLocation();
-
   const lastTrackedPage = useRef<string | null>(null);
 
   useEffect(() => {
     const currentPage = location.pathname + location.search;
-
-    // Prevent duplicate tracking, including React StrictMode effect replay
     if (lastTrackedPage.current === currentPage) return;
-
     lastTrackedPage.current = currentPage;
-
     window.fbq?.('track', 'PageView');
   }, [location.pathname, location.search]);
 
@@ -72,111 +67,48 @@ function MetaPixelTracker() {
 function AppLayout() {
   const location = useLocation();
 
+  // Scroll to the top whenever the route changes.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
   // Admin pages use their own standalone layout
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-on-surface">
-
-      {/* Hide public Navbar on admin pages */}
       {!isAdminRoute && <Navbar />}
 
       <main className="flex-1">
         <Routes>
-
-          {/* ================================== */}
           {/* ADMIN LOGIN */}
-          {/* ================================== */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
 
-          <Route
-            path="/admin/login"
-            element={<AdminLoginPage />}
-          />
-
-          {/* ================================== */}
           {/* PROTECTED ADMIN DASHBOARD */}
-          {/* ================================== */}
-
           <Route element={<AdminProtectedRoute />}>
-
-            <Route
-              path="/admin"
-              element={<AdminArtistsPage />}
-            />
-
-            <Route
-              path="/admin/artists/new"
-              element={<AdminArtistFormPage />}
-            />
-
-            <Route
-              path="/admin/artists/:id/edit"
-              element={<AdminArtistFormPage />}
-            />
-
+            <Route path="/admin" element={<AdminArtistsPage />} />
+            <Route path="/admin/artists/new" element={<AdminArtistFormPage />} />
+            <Route path="/admin/artists/:id/edit" element={<AdminArtistFormPage />} />
           </Route>
 
-          {/* ================================== */}
           {/* PUBLIC WEBSITE ROUTES */}
-          {/* ================================== */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/artist/:slug" element={<ArtistProfilePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/browse" element={<BrowseArtistsPage />} />
 
-          <Route
-            path="/"
-            element={<LandingPage />}
-          />
-<Route
-  path="/artist/:slug"
-  element={<ArtistProfilePage />}
-/>
-          <Route
-            path="/login"
-            element={<LoginPage />}
-          />
+          {/* Booking form and separate review page */}
+          <Route path="/booking" element={<BookingWizardPage />} />
+          <Route path="/booking-review" element={<BookingReviewPage />} />
+          <Route path="/artist-booking" element={<ArtistBookingPage />} />
 
-          <Route
-            path="/signup"
-            element={<SignupPage />}
-          />
+          <Route path="/join" element={<JoinAsArtistPage />} />
+          <Route path="/post-requirement" element={<EventQuoteForm />} />
+          <Route path="/artist-faq" element={<ArtistFAQPage />} />
+          <Route path="/contact" element={<ContactUsPage />} />
 
-          <Route
-            path="/browse"
-            element={<BrowseArtistsPage />}
-          />
-
-          <Route
-            path="/booking"
-            element={<BookingWizardPage />}
-          />
-
-          <Route
-            path="/artist-booking"
-            element={<ArtistBookingPage />}
-          />
-
-          <Route
-            path="/join"
-            element={<JoinAsArtistPage />}
-          />
-
-          <Route
-            path="/post-requirement"
-            element={<EventQuoteForm />}
-          />
-
-          <Route
-            path="/artist-faq"
-            element={<ArtistFAQPage />}
-          />
-
-          <Route
-            path="/contact"
-            element={<ContactUsPage />}
-          />
-
-          {/* ================================== */}
           {/* CUSTOMER DASHBOARD */}
-          {/* ================================== */}
-
           <Route
             path="/dashboard"
             element={
@@ -186,21 +118,12 @@ function AppLayout() {
             }
           />
 
-          {/* ================================== */}
           {/* CATCH-ALL FALLBACK */}
-          {/* ================================== */}
-
-          <Route
-            path="*"
-            element={<Navigate to="/" replace />}
-          />
-
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
-      {/* Hide public Footer on admin pages */}
       {!isAdminRoute && <Footer />}
-
     </div>
   );
 }
@@ -209,9 +132,7 @@ function AppLayout() {
 export default function App() {
   return (
     <BrowserRouter>
-
       <MetaPixelTracker />
-
       <AuthProvider>
         <AdminAuthProvider>
           <BookingProvider>
@@ -219,7 +140,6 @@ export default function App() {
           </BookingProvider>
         </AdminAuthProvider>
       </AuthProvider>
-
     </BrowserRouter>
   );
 }
