@@ -599,7 +599,7 @@ export default function ArtistBookingPage() {
         <section className="rounded-2xl border border-[#d6b46a]/25 bg-gradient-to-br from-[#211a29] via-[#17131f] to-[#111019] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] md:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#d6b46a]">
+              <div className="flex items-center gap-2 text-[16px] font-bold uppercase tracking-[0.24em] text-[#d6b46a]">
                 <span className="material-symbols-outlined text-base">payments</span>
                 Set your budget
               </div>

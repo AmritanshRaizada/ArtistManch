@@ -134,22 +134,28 @@ export default function LandingPage() {
 ArtistManch brings exceptional singers, Sufi artists, and performers to weddings, corporate events, and celebrations, creating unforgettable experiences.          </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-12">
-            <button
-              onClick={() => navigate('/browse')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.35)] hover:scale-[1.03] transition-all"
-            >
-              <span>Browse Specific Artist</span>
-              <span className="material-symbols-outlined text-[19px]">magic_button</span>
-            </button>
-            <button
-              onClick={() => navigate('/booking')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-container-high/80 backdrop-blur-md text-on-surface font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl hover:bg-surface-variant hover:text-primary transition-all shadow-md border border-outline-variant/30"
-            >
-              <span className="material-symbols-outlined text-secondary text-[19px]">graphic_eq</span>
-              <span>Last Minute Booking</span>
-            </button>
-          </div>
+          
+{/* CTA Buttons */}
+<div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-12">
+  {/* Last Minute Booking - Gold Style */}
+  <button
+    onClick={() => navigate('/booking')}
+    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl shadow-[0_12px_28px_-6px_rgba(242,202,80,0.35)] hover:scale-[1.03] transition-all"
+  >
+    <span className="material-symbols-outlined text-[19px]">graphic_eq</span>
+    <span>Last Minute Booking</span>
+  </button>
+
+  {/* Browse Specific Artist - Dark Translucent Style */}
+  <button
+    onClick={() => navigate('/browse')}
+    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-container-high/80 backdrop-blur-md text-on-surface font-bold text-[14px] uppercase tracking-[0.04em] rounded-xl hover:bg-surface-variant hover:text-primary transition-all shadow-md border border-outline-variant/30"
+  >
+    <span>Browse Specific Artist</span>
+    <span className="material-symbols-outlined text-[19px]">magic_button</span>
+  </button>
+</div>
+
 
           {/* Trust Badge Bar */}
           <div className="w-full max-w-3xl pt-8 flex flex-wrap items-center justify-center sm:justify-between gap-y-4 gap-x-6 text-on-surface-variant/90 border-t border-outline-variant/20">
