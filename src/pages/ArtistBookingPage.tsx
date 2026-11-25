@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { MAJOR_CITIES } from '../data/artists';
 
 const BUDGET_MILESTONES = [
+  0,
   10_000,
   50_000,
   500_000,
@@ -23,6 +24,7 @@ const MIN_BUDGET = BUDGET_MILESTONES[0];
 const MAX_BUDGET = BUDGET_MILESTONES[BUDGET_MILESTONES.length - 1];
 
 const BUDGET_MILESTONE_LABELS = [
+  '₹0',
   '₹10K',
   '₹50K',
   '₹5L',
@@ -90,9 +92,10 @@ export default function ArtistBookingPage() {
     (artist as (typeof artist & { performance_duration?: string }) | undefined)?.performance_duration ||
     'To be discussed';
 
-  function getBudgetMilestoneIndex(value: number) {
-    return BUDGET_MILESTONES.reduce((closestIndex, milestone, index) => {
-      const currentDistance = Math.abs(BUDGET_MILESTONES[closestIndex] - value);
+  function getBudgetMilestoneIndex(value: number): number {
+    return BUDGET_MILESTONES.reduce<number>((closestIndex, milestone, index) => {
+      const currentMilestone = BUDGET_MILESTONES[closestIndex] ?? MIN_BUDGET;
+      const currentDistance = Math.abs(currentMilestone - value);
       const nextDistance = Math.abs(milestone - value);
       return nextDistance < currentDistance ? index : closestIndex;
     }, 0);
@@ -597,17 +600,22 @@ export default function ArtistBookingPage() {
 
         {/* Budget control sits above the three-step flow */}
         <section className="rounded-2xl border border-[#d6b46a]/25 bg-gradient-to-br from-[#211a29] via-[#17131f] to-[#111019] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] md:p-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-[16px] font-bold uppercase tracking-[0.24em] text-[#d6b46a]">
-                <span className="material-symbols-outlined text-base">payments</span>
-                Set your budget
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-3">
+            {/* Budget heading */}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 whitespace-nowrap text-[16px] font-bold uppercase tracking-[0.14em] text-[#d6b46a]">
+                <span className="material-symbols-outlined shrink-0 text-base">payments</span>
+                <span>Set your budget</span>
               </div>
-              <p className="mt-1 text-xs text-white/45">What are you comfortable investing in this performance?</p>
+              <p className="mt-1 max-w-[230px] text-xs leading-5 text-white/45">
+                What are you comfortable investing in this performance?
+              </p>
             </div>
+
+            {/* Selected budget */}
             <div className="sm:text-right">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">Your budget</p>
-              <p className="mt-1 text-2xl font-semibold tracking-tight text-[#f5cf65] md:text-3xl">{formatINR(budget)}</p>
+              <p className="mt-1 whitespace-nowrap text-2xl font-semibold tracking-tight text-[#f5cf65] md:text-3xl">{formatINR(budget)}</p>
             </div>
           </div>
           <div className="mt-5">
@@ -664,7 +672,7 @@ export default function ArtistBookingPage() {
             </div>
           </div>
           <p className="mt-2 text-[10px] leading-5 text-white/40">
-            Budget range: ₹10,000 – ₹10 crore. Your selected amount is indicative.
+            Budget range: ₹0 – ₹10 crore. Your selected amount is indicative.
           </p>
 
           <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#d6b46a]/15 bg-[#d6b46a]/[0.05] p-3">
